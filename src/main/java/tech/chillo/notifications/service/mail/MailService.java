@@ -17,6 +17,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -56,7 +57,8 @@ public class MailService {
         helper.setCc(mappedCC);
         final InternetAddress[] mappedCCI = mappedUsers(notification.getCci());
         helper.setCc(mappedCCI);
-        helper.setFrom(new InternetAddress(notification.getFrom().getEmail()));
+        InternetAddress from = getInternetAddress(notification.getFrom().getFirstname(), notification.getFrom().getLastname(), notification.getFrom().getEmail());
+        helper.setFrom(Objects.requireNonNull(from));
         helper.setSubject(notification.getSubject());
         helper.setText(template, true);
         this.mailSender.send(mimeMessage);
@@ -64,16 +66,18 @@ public class MailService {
 
     private static InternetAddress[] mappedUsers(final Set<Recipient> recipients) {
 
-        return recipients.stream().map((Recipient to) -> {
-                    try {
-                        final String name = String.format("%s %s", to.getFirstname(), to.getLastname().toUpperCase());
-                        return new InternetAddress(to.getEmail(), name);
-                    } catch (final UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                })
+        return recipients.stream().map((Recipient to) -> getInternetAddress(to.getFirstname(), to.getLastname(), to.getEmail()))
                 .toArray(InternetAddress[]::new);
+    }
+
+    private static InternetAddress getInternetAddress(String firstname, String lastname, String email) {
+        try {
+            final String name = String.format("%s %s", firstname, lastname);
+            return new InternetAddress(email, name);
+        } catch (final UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private static Map<String, Object> defaultParameters(final TemplateParams templateParams) {
