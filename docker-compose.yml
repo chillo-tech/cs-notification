@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  ms-app:
+    container_name: ms-leganda
+    restart: always
+    image: IMAGE_NAME
+    ports:
+      - "27190:9091"
+    networks:
+      - applications-network
+    environment:
+      - "SPRING_PROFILES_ACTIVE=recette"
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ms-leganda.rule=Headers(`X-Host`, `api.leganda.chillo.fr`)"
+      - "traefik.docker.network=applications-network"
+
+networks:
+  applications-network:
+    external:
+      name: applications-network
+
