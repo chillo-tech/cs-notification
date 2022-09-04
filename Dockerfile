@@ -1,9 +1,9 @@
 FROM openjdk:11.0.5-jre-stretch
 VOLUME /tmp
-EXPOSE 29903
-ARG APP_NAME=ms-leganda.jar
-ARG JAR_FILE=ms-leganda.jar
-ADD  ${JAR_FILE} ms-leganda.jar
+EXPOSE 27192
+ARG APP_NAME=ms-notifications.jar
+ARG JAR_FILE=ms-notifications.jar
+ADD  ${JAR_FILE} ms-notifications.jar
 
-ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=recette", "/ms-leganda.jar"]
+ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=recette", "/ms-notifications.jar"]
 

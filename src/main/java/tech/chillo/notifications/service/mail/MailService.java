@@ -1,4 +1,4 @@
-package tech.chillo.csnotifications.service.mail;
+package tech.chillo.notifications.service.mail;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -8,9 +8,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
-import tech.chillo.csnotifications.entity.Notification;
-import tech.chillo.csnotifications.entity.Recipient;
-import tech.chillo.csnotifications.entity.TemplateParams;
+import tech.chillo.notifications.entity.Notification;
+import tech.chillo.notifications.entity.Recipient;
+import tech.chillo.notifications.entity.TemplateParams;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;

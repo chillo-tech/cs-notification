@@ -1,11 +1,11 @@
 version: '3.8'
 services:
   ms-app:
-    container_name: ms-leganda
+    container_name: ms-notifications
     restart: always
     image: IMAGE_NAME
     ports:
-      - "27190:9091"
+      - "27192:9092"
     networks:
       - applications-network
     environment:
@@ -13,7 +13,7 @@ services:
 
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ms-leganda.rule=Headers(`X-Host`, `api.leganda.chillo.fr`)"
+      - "traefik.http.routers.ms-notifications.rule=Headers(`X-Host`, `api.notifications.chillo.fr`)"
       - "traefik.docker.network=applications-network"
 
 networks:

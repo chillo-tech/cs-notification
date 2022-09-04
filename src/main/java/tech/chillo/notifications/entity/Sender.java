@@ -1,4 +1,4 @@
-package tech.chillo.csnotifications.entity;
+package tech.chillo.notifications.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

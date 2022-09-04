@@ -1,4 +1,4 @@
-package tech.chillo.csnotifications.entity;
+package tech.chillo.notifications.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +18,7 @@ public class Notification {
     @Id
     private String id;
     private String subject;
+    private String applicationName;
     private String template;
     private Sender from;
     private Set<Recipient> to;

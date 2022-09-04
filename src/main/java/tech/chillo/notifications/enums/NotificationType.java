@@ -1,4 +1,4 @@
-package tech.chillo.csnotifications.enums;
+package tech.chillo.notifications.enums;
 
 public enum NotificationType {
     MAIL,

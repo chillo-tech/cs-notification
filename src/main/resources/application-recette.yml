@@ -1,6 +1,12 @@
 spring:
-    mail:
-      host: smtp.gmail.com
-      port: 587
-      password: xpmswzbclbnulucd
-      username: bonjour.zeeven@gmail.com
+  data:
+    mongodb:
+      host: db-mongo
+      authentication-database: admin
+  mail:
+    #host: 192.168.1.200
+    #port: 25
+    host: smtp-relay.sendinblue.com
+    port: 587
+    password: dqm1hzycTgOnCQ2s
+    username: accueil@chillo.tech

@@ -8,6 +8,8 @@ on:
 
 env:
   NODE_VERSION: '14.x'
+  APPLICATION_NAME: 'notifications'
+  APPLICATION_TYPE: 'ms'
 
 permissions:
   contents: read
@@ -29,8 +31,8 @@ jobs:
         password: ${{ secrets.RECETTE_APPLICATIONS_PASSWPRD }}
         key: ${{ secrets.RECETTE_APPLICATIONS_SSH_PRIVATE_KEY }}
         script: |
-          sudo mkdir -p /opt/applications/leganda/ms-leganda
-          sudo chmod ugo+rwx /opt/applications/leganda/ms-leganda
+          sudo mkdir -p /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}
+          sudo chmod ugo+rwx /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}
 
   copy-configs:
     name: "copy configs"
@@ -40,8 +42,8 @@ jobs:
       - uses: actions/checkout@master
       - name: update configs
         run: |
-         sed -i 's|IMAGE_NAME|simachille/ms-leganda:${{ github.ref_name }}-${{ github.sha }}|' docker-compose.yml
-         sed -i 's|APP_JAR|simachille/ms-leganda-${{ github.ref_name }}-${{ github.sha }}.jar|' Dockerfile
+         sed -i 's|IMAGE_NAME|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.ref_name }}-${{ github.sha }}|' docker-compose.yml
+         sed -i 's|APP_JAR|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.ref_name }}-${{ github.sha }}.jar|' Dockerfile
 
       - name: copy file via ssh password
         uses: appleboy/scp-action@master
@@ -52,7 +54,7 @@ jobs:
           password: ${{ secrets.RECETTE_APPLICATIONS_PASSWPRD }}
           key: ${{ secrets.RECETTE_APPLICATIONS_SSH_PRIVATE_KEY }}
           source: "docker-compose.yml"
-          target: "/opt/applications/leganda/ms-leganda"
+          target: "/opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}"
   build:
     runs-on: ubuntu-latest
     steps:
@@ -70,14 +72,14 @@ jobs:
 
       - name: rename
         run: |
-          mv ./target/ms-leganda-0.0.1-SNAPSHOT.jar ./target/ms-leganda-${{ github.ref_name }}-${{ github.sha }}.jar
+          mv ./target/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-0.0.1-SNAPSHOT.jar ./target/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.ref_name }}-${{ github.sha }}.jar
           ls -al target
 
       - name: Upload jar
         uses: actions/upload-artifact@v3
         with:
-          name: ms-leganda
-          path: ./target/ms-leganda-${{ github.ref_name }}-${{ github.sha }}.jar
+          name: ${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}
+          path: ./target/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.ref_name }}-${{ github.sha }}.jar
 
   build-to-nexus:
     name: "Build to nexus"
@@ -87,7 +89,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: ms-leganda
+          name: ${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}
       - name: Check
         run: |
           ls -al
@@ -100,9 +102,9 @@ jobs:
       #    password: ${{ secrets.NEXUS_PASSWORD }}
       #    format: maven2
       #    repository: maven-releases
-       #   coordinates: groupId=com.cs artifactId=ms-leganda version=${{ github.ref_name }}-${{ github.sha }}
+       #   coordinates: groupId=com.cs artifactId=${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}} version=${{ github.ref_name }}-${{ github.sha }}
        #   assets: extension=jar
-       #   filename: ms-leganda-${{ github.ref_name }}-${{ github.sha }}.jar
+       #   filename: ${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.ref_name }}-${{ github.sha }}.jar
 
   dockerise-and-push-to-nexus:
     name: "dockerise-and-push-to-nexus"
@@ -114,20 +116,20 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: ms-leganda
+          name: ${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}
       - name: Check
         run: |
           ls -al
       
       - name: rename
         run: |
-          mv ms-leganda-*.jar ms-leganda.jar
+          mv ${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-*.jar ${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}.jar
           ls -al
 
       - name: update configs
         run: |
          cat Dockerfile
-         sed -i 's|APP_JAR|simachille/ms-leganda:${{ github.ref_name }}-${{ github.sha }}.jar|' Dockerfile
+         sed -i 's|APP_JAR|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.ref_name }}-${{ github.sha }}.jar|' Dockerfile
          cat Dockerfile
 
       - name: Set up QEMU
@@ -147,7 +149,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: simachille/ms-leganda:${{ github.ref_name }}-${{ github.sha }}
+          tags: simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.ref_name }}-${{ github.sha }}
 
   run-container:
     name: "Run container"
@@ -163,7 +165,7 @@ jobs:
         password: ${{ secrets.RECETTE_APPLICATIONS_PASSWPRD }}
         key: ${{ secrets.RECETTE_APPLICATIONS_SSH_PRIVATE_KEY }}
         script: |
-          docker-compose -f /opt/applications/leganda/ms-leganda/docker-compose.yml stop
-          docker-compose -f /opt/applications/leganda/ms-leganda/docker-compose.yml rm -f
-          docker rmi simachille/ms-leganda:${{ github.ref_name }}-${{ github.sha }} -f
-          docker-compose -f /opt/applications/leganda/ms-leganda/docker-compose.yml up -d
+          docker-compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml stop
+          docker-compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml rm -f
+          docker rmi simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.ref_name }}-${{ github.sha }} -f
+          docker-compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml up -d

@@ -1,10 +1,10 @@
-package tech.chillo.csnotifications;
+package tech.chillo.notifications;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class CsNotificationsApplicationTests {
+class MSNotificationsApplicationTests {
 
     @Test
     void contextLoads() {

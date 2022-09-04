@@ -1,4 +1,4 @@
-package tech.chillo.csnotifications.configuration;
+package tech.chillo.notifications.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
