@@ -1,0 +1,13 @@
+server:
+  port : 8082
+  servlet:
+    context-path: /api
+spring:
+  application:
+    name: cs-notifications
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: ${spring.application.name}
+
