@@ -1,6 +1,6 @@
 FROM openjdk:17-jdk-slim
 VOLUME /tmp
-EXPOSE 27192
+EXPOSE 9092
 ARG APP_NAME=ms-notifications.jar
 ARG JAR_FILE=ms-notifications.jar
 ADD  ${JAR_FILE} ms-notifications.jar
