@@ -18,6 +18,9 @@ public class HooksService {
     public void vonage(Map<String, Object> params) {
         log.info("{}", params);
         NotificationStatus notificationStatus = this.notificationStatusRepository.findByProviderNotificationId(params.get("messageId").toString());
+        if (notificationStatus == null) {
+            notificationStatus = new NotificationStatus();
+        }
         notificationStatus.setStatus(params.get("status").toString());
         notificationStatus.setPrice(params.get("price").toString());
         notificationStatus.setCode(params.get("err-code").toString());
