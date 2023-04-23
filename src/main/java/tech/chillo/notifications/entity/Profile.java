@@ -10,9 +10,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public abstract class Profile {
+    protected String id;
     protected String civility;
-    protected String firstname;
-    protected String lastname;
+    protected String firstName;
+    protected String lastName;
     protected String email;
+    protected String phoneIndex;
     protected String phone;
 }

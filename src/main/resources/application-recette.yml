@@ -11,3 +11,12 @@ spring:
     password: dqm1hzycTgOnCQ2s
     username: accueil@chillo.tech
 
+spring:
+  rabbitmq:
+    host: 212.83.180.65
+    port: 5672
+    username: rbmq_admin
+    password: administrator
+    virtual-host: prod-notifications
+    template:
+      exchange: tech.messages.exchange

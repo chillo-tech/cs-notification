@@ -1,12 +1,27 @@
+application:
+  messages:
+    queue: "tech.messages.queue"
+  notifications:
+    queue: "tech.notifications.queue"
+
 providers:
   whatsapp:
-    TOKEN: EAAQB6FeiTJoBAMY2kZCPl6izzFdNHBbWwPazIDc1SgvWitmvTrWKNsQpALI1hAdvvPJoVai2rjHKYyfpJyjYp2d8BsaTWhD4ePfRlU9RTlyoyoXe8w16acREQoygL6pFjL9zNG3AJmoZB6idZAZBintcqbKGXl7ZBaWoiiVZCyjls6BZAhAQXcBxz024PNbiccqri9xBQI6uAZDZD
-    ACCOUNT_ID: 105401078979193
-    PHONE_ID: 102838372572347
+    token: EAAQB6FeiTJoBANewZAYjwrMiyjFonZC0JFBwZBfG6tlsT5KvNim5llZCs8EN26hD6fntKOM0YMXtzLwMnpUtrHSNrDM7hsZBAzlQdu1iBFFoZCGYVWL3DaKDXzMlnRDkWcKuY0Mdnlc0voyQOMDeZCxGuohUQiJX0K96c2TNjKAWfDmVGZAaU2wv61OtxRRPSzKZCOeHcDm7EYwZDZD
+    account-id: 105401078979193
+    phone: 102838372572347
+    host: https://graph.facebook.com/v14.0/${providers.whatsapp.phone}
+  twilio:
+    host: https://api.twilio.com/2010-04-01/Accounts
+    account-id: AC303b2ae3b08ffdadb7388fcb4417a34e
+    account-secret: 8874919616ead2e8b86cbd9d5d4b0e0c
+    service-id: MG73626e3bcb964eea28d61b9bb81cf3f4
+  vonage:
+    api_key: 82dda85e
+    api_secret: 4N7431cV36XN9TEO
   d7:
-    CLIENT_ID: bMaySlzEdoaGrHDT308X0ANixexVBfLdtQ9zakTP
-    CLIENT_SECRET: WY1zIN2y0AbZDGJqe1ajrr3V0bSf0weNjRUU96RPhkkBYArfJJYyprcV7qaXYkYXSC1YDyvhJXnNo7HaEwirSEQQAa9I9HJMcj7l2EcPn7V2F2zDR3nKmyxiVvAlCN38
-    CLIENT_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoLWJhY2tlbmQ6YXBwIiwic3ViIjoiNWJjMzNhZTMtZGRmMi00OWJjLWE5MzctODllYjc5ZmE1ZDgyIn0.IFvOmex1n-BxJa1qqyL-fJi-sT6Wq3ivPC51Gm8Kza4
+    CLIENT_ID: 8TTCIPUqAm4U99WVB7w59Q0BKnqKMQ32X1pHSWHA
+    CLIENT_SECRET: KtnRDeF8cDEVOk9mD4EZYhftiZ7Ps8w6CiBZtfxZivPL0dbzbRl1E57b4bwhuyA7Bd0RVqs7k93g9YKqTbRyHxVOxZyhl5FvLChOBJ48T67lBUs8KeGwM9eOU6iaVt7i
+    CLIENT_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoLWJhY2tlbmQ6YXBwIiwic3ViIjoiNWY2NWY2YzctZDIzNC00MTIxLWE3NWItNzU1M2U0ZGE1YTMzIn0.FSEhMUPX65CKKQ7LOsAJw_kaa8DEGizb40mDp0oksqI
 server:
   port : 9092
   servlet:
@@ -14,6 +29,16 @@ server:
 spring:
   application:
     name: ms-notifications
+  rabbitmq:
+    host: 212.83.180.65
+    port: 5672
+    username: rbmq_admin
+    password: administrator
+    virtual-host: prod-notifications
+    connection-timeout: 10000
+    template:
+        default-receive-queue: "tech.notifications.queue"
+
   data:
     mongodb:
       host: localhost
@@ -31,3 +56,11 @@ spring:
             enable: true
     protocol: smtp
     test-connection: true
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 100000
+        readTimeout: 100000
+        loggerLevel: full
