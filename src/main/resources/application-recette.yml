@@ -3,19 +3,11 @@ spring:
     mongodb:
       host: db-mongo
       authentication-database: admin
-  mail:
-    #host: 192.168.1.200
-    #port: 25
-    host: smtp-relay.sendinblue.com
-    port: 587
-    password: dqm1hzycTgOnCQ2s
-    username: accueil@chillo.tech
+#   mail:
+#     #host: 192.168.1.200
+#     #port: 25
+#     host: smtp-relay.sendinblue.com
+#     port: 587
+#     password: dqm1hzycTgOnCQ2s
+#     username: accueil@chillo.tech
 
-  rabbitmq:
-    host: 212.83.180.65
-    port: 5672
-    username: rbmq_admin
-    password: administrator
-    virtual-host: prod-notifications
-    template:
-      exchange: tech.messages.exchange
