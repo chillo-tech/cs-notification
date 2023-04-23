@@ -40,6 +40,6 @@ public class HooksController {
             @RequestParam(required = false, name = "hub.challenge") String challenge,
             @RequestParam(required = false, name = "hub.mode") String mode) {
         log.info("WA TOKEN {}", challenge);
-        return token;
+        return challenge;
     }
 }
