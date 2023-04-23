@@ -1,4 +1,6 @@
 spring:
+  rabbitmq:
+    host: rabbitmq-1
   data:
     mongodb:
       host: db-mongo
