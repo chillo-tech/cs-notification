@@ -1,4 +1,4 @@
-FROM openjdk:11.0.5-jre-stretch
+FROM openjdk:17-jdk-slim
 VOLUME /tmp
 EXPOSE 27192
 ARG APP_NAME=ms-notifications.jar
