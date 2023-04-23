@@ -3,11 +3,11 @@ spring:
     mongodb:
       host: db-mongo
       authentication-database: admin
-    mail:
-      host: mails.dev
-      port: 25
-#     host: smtp-relay.sendinblue.com
-#     port: 587
-#     password: dqm1hzycTgOnCQ2s
-#     username: accueil@chillo.tech
+  mail:
+    host: mails.dev
+    #port: 25
+    #host: smtp-relay.sendinblue.com
+    #port: 587
+    #password: dqm1hzycTgOnCQ2s
+    #username: accueil@chillo.tech
 
