@@ -3,7 +3,7 @@ spring:
     mongodb:
       host: db-mongo
       authentication-database: admin
-   mail:
+    mail:
       host: mails.dev
       port: 25
 #     host: smtp-relay.sendinblue.com
