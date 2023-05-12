@@ -1,125 +1,87 @@
 package tech.chillo.notifications.service.mail;
 
-import com.google.common.base.Strings;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
 import tech.chillo.notifications.entity.Notification;
 import tech.chillo.notifications.entity.NotificationStatus;
-import tech.chillo.notifications.entity.NotificationTemplate;
 import tech.chillo.notifications.entity.Recipient;
-import tech.chillo.notifications.enums.NotificationType;
+import tech.chillo.notifications.records.sendinblue.Contact;
+import tech.chillo.notifications.records.sendinblue.Message;
 import tech.chillo.notifications.repository.NotificationTemplateRepository;
+import tech.chillo.notifications.service.NotificationMapper;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Slf4j
-@AllArgsConstructor
-@Service
-public class MailService {
-    private final NotificationTemplateRepository notificationTemplateRepository;
+import static java.lang.String.format;
+import static tech.chillo.notifications.enums.NotificationType.MAIL;
 
+@Slf4j
+@Service
+public class MailService extends NotificationMapper {
     private final JavaMailSender mailSender;
+    private final String recipient;
+    private final SendinblueMessageService sendinblueMessageService;
+
+    public MailService(
+            NotificationTemplateRepository notificationTemplateRepository,
+            JavaMailSender mailSender,
+            final SendinblueMessageService sendinblueMessageService,
+            @Value("${application.recipient.email:#{null}}") final String recipient) {
+        super(notificationTemplateRepository);
+        this.sendinblueMessageService = sendinblueMessageService;
+        this.mailSender = mailSender;
+        this.recipient = recipient;
+    }
 
     @Async
     public List<NotificationStatus> send(final Notification notification) {
         return notification.getContacts().parallelStream().map((Recipient to) -> {
+            String messageToSend = String.valueOf(this.map(notification, to).get("messge"));
+
             try {
-                notification.setContacts(Set.of(to));
-                Map<String, Object> params = notification.getParams();
-
-                if (params == null) {
-                    params = new HashMap<>();
-                }
-                final Object message = params.get("message");
-                String messageAsString = null;
-                if (message != null) {
-                    messageAsString = message.toString();
-                    final BeanInfo beanInfo = Introspector.getBeanInfo(Recipient.class);
-                    for (final PropertyDescriptor propertyDesc : beanInfo.getPropertyDescriptors()) {
-                        final String propertyName = propertyDesc.getName();
-                        final Object value = propertyDesc.getReadMethod().invoke(to);
-                        if (!Strings.isNullOrEmpty(String.valueOf(value)) && value instanceof String) {
-                            if (Objects.equals(propertyName, "phone")) {
-                                messageAsString = messageAsString.replace(String.format("%s%s%s", "{{", propertyName, "}}"), String.format("00%s%s", to.getPhoneIndex(), to.getPhone()));
-                            } else {
-                                messageAsString = messageAsString.replace(String.format("%s%s%s", "{{", propertyName, "}}"), (CharSequence) value);
-                            }
-                        }
-                    }
-                    messageAsString = messageAsString.replaceAll(Pattern.quote("\\n"), Matcher.quoteReplacement("<br />"));
-                }
-                params.put("message", messageAsString);
-                params.put("firstName", to.getFirstName());
-                params.put("lastName", to.getLastName());
-                params.put("civility", to.getCivility());
-                params.put("email", to.getEmail());
-                params.put("phone", to.getPhone());
-                params.put("phoneIndex", to.getPhoneIndex());
-                final Context context = new Context();
-                context.setVariables(params);
-                String messageToSend = notification.getMessage();
-
-                if (!Strings.isNullOrEmpty(notification.getTemplate())) {
-                    NotificationTemplate notificationTemplate = this.notificationTemplateRepository
-                            .findByApplicationAndName(notification.getApplication(), notification.getTemplate())
-                            .orElseThrow(() -> new IllegalArgumentException(String.format("Aucun template %s n'existe pour %s", notification.getTemplate(), notification.getApplication())));
-                    //final String template = this.textTemplateEngine.process(notificationTemplate.getContent(), context);
-                    messageToSend = this.processTemplate(params, notificationTemplate.getContent());
-                } else {
-                    messageToSend = messageToSend.replaceAll(Pattern.quote("{{"), Matcher.quoteReplacement("${"))
-                            .replaceAll(Pattern.quote("}}"), Matcher.quoteReplacement("}"));
-
-                    Parser parser = Parser.builder().build();
-                    Node document = parser.parse(messageToSend);
-                    HtmlRenderer renderer = HtmlRenderer.builder().build();
-                    messageToSend = renderer.render(document);
-                    messageToSend = messageToSend.replaceAll("(\r\n|\n)", "<br />");
-                    messageToSend = this.processTemplate(params, messageToSend);
-                }
-
-                this.sendMessage(notification, messageToSend);
-
-                final NotificationStatus notificationStatus = new NotificationStatus();
-                final Object eventId = notification.getEventId();
-                notificationStatus.setEventId((String) eventId);
-                notificationStatus.setUserId(to.getId());
-                notificationStatus.setChannel(NotificationType.MAIL);
-                return notificationStatus;
-            } catch (final MessagingException | IntrospectionException | InvocationTargetException | IllegalAccessException e) {
+                Map<String, Object> result = this.sendMessageUsingSendinBlueAPI(notification, messageToSend);
+                return this.getNotificationStatus(
+                        notification,
+                        to.getId(),
+                        MAIL,
+                        result.get("messageId").toString(),
+                        "INITIAL"
+                );
+            } catch (MessagingException e) {
                 e.printStackTrace();
             }
             return null;
         }).collect(Collectors.toList());
+    }
+
+
+    private Map<String, Object> sendMessageUsingSendinBlueAPI(final Notification notification, final String messageToSend) throws MessagingException {
+        Parser parser = Parser.builder().build();
+        Node document = parser.parse(messageToSend);
+        HtmlRenderer renderer = HtmlRenderer.builder().build();
+        Message message = new Message(
+                notification.getSubject(),
+                renderer.render(document),
+                new Contact(format("%s %s VIA ZEEVEN", notification.getFrom().getFirstName(), notification.getFrom().getLastName()), notification.getFrom().getEmail()),
+                this.mappedContacts(notification.getContacts())
+        );
+        return this.sendinblueMessageService.message(message);
     }
 
     private void sendMessage(final Notification notification, final String template) throws MessagingException {
@@ -138,15 +100,35 @@ public class MailService {
         this.mailSender.send(mimeMessage);
     }
 
+    private Set<Contact> mappedContacts(final Set<Recipient> recipients) {
+
+        return recipients.stream().map(
+                        (Recipient to) -> {
+                            String email = this.recipient;
+                            if (this.recipient == null) {
+                                email = to.getEmail();
+                            }
+                            return new Contact(format("%s %s", to.getFirstName(), to.getLastName()), email);
+                        })
+                .collect(Collectors.toSet());
+    }
+
     private InternetAddress[] mappedUsers(final Set<Recipient> recipients) {
 
-        return recipients.stream().map((Recipient to) -> this.getInternetAddress(to.getFirstName(), to.getLastName(), to.getEmail()))
+        return recipients.stream().map(
+                        (Recipient to) -> {
+                            String email = this.recipient;
+                            if (this.recipient == null) {
+                                email = to.getEmail();
+                            }
+                            return this.getInternetAddress(to.getFirstName(), to.getLastName(), email);
+                        })
                 .toArray(InternetAddress[]::new);
     }
 
     private InternetAddress getInternetAddress(final String firstname, final String lastname, final String email) {
         try {
-            final String name = String.format("%s %s", firstname, lastname);
+            final String name = format("%s %s", firstname, lastname);
             return new InternetAddress(email, name);
         } catch (final UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -154,17 +136,5 @@ public class MailService {
         return null;
     }
 
-    private String processTemplate(Map model, String template) {
-        try {
-            Template t = new Template("TemplateFromDBName", template, null);
-            Writer out = new StringWriter();
-            t.process(model, out);
-            return out.toString();
-
-        } catch (TemplateException | IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
 }

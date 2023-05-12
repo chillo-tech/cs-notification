@@ -5,11 +5,12 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
+import tech.chillo.notifications.configuration.WhatsAppFeignConfiguration;
 import tech.chillo.notifications.service.whatsapp.dto.TextMessage;
 
 import java.util.Map;
 
-@FeignClient(name = "whatsappmessages", url = "${providers.whatsapp.host}")
+@FeignClient(name = "whatsappmessages", url = "${providers.whatsapp.host}", configuration = WhatsAppFeignConfiguration.class)
 public interface TextMessageService {
     @PostMapping("/messages")
     void message(@RequestBody TextMessage textMessage);

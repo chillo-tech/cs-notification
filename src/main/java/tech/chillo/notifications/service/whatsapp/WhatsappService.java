@@ -1,43 +1,80 @@
 package tech.chillo.notifications.service.whatsapp;
 
-import com.google.common.base.Strings;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import tech.chillo.notifications.entity.Notification;
 import tech.chillo.notifications.entity.NotificationStatus;
-import tech.chillo.notifications.entity.NotificationTemplate;
 import tech.chillo.notifications.entity.Recipient;
-import tech.chillo.notifications.enums.NotificationType;
 import tech.chillo.notifications.repository.NotificationTemplateRepository;
+import tech.chillo.notifications.service.NotificationMapper;
+import tech.chillo.notifications.service.whatsapp.dto.Component;
 import tech.chillo.notifications.service.whatsapp.dto.Language;
+import tech.chillo.notifications.service.whatsapp.dto.Parameter;
 import tech.chillo.notifications.service.whatsapp.dto.TextMessage;
 import tech.chillo.notifications.service.whatsapp.dto.WhatsappTemplate;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
+import static tech.chillo.notifications.enums.NotificationType.WHATSAPP;
+
 @Service
-public class WhatsappService {
-    TextMessageService textMessageService;
+public class WhatsappService extends NotificationMapper {
+
+    private final String recipient;
+    private final TextMessageService textMessageService;
     private final NotificationTemplateRepository notificationTemplateRepository;
 
+    public WhatsappService(
+            @Value("${application.recipient.sms:#{null}}") final String recipient,
+            TextMessageService textMessageService,
+            NotificationTemplateRepository notificationTemplateRepository
+    ) {
+        super(notificationTemplateRepository);
+        this.recipient = recipient;
+        this.textMessageService = textMessageService;
+        this.notificationTemplateRepository = notificationTemplateRepository;
+    }
+
+    @Async
+    public List<NotificationStatus> send(final Notification notification) {
+        return notification.getContacts().parallelStream().map((Recipient to) -> {
+            final WhatsappTemplate template = new WhatsappTemplate();
+            template.setName("hello_world");
+            //template.setNamespace("newcourseevent");
+
+            template.setLanguage(new Language("en_US"));
+
+            final Component component = new Component();
+            component.setType("body");
+            Map<String, String> params = (Map<String, String>) this.map(notification, to).get("params");
+            final List<Parameter> parameters = params.keySet()
+                    .parallelStream().map(param -> new Parameter("text", params.get(param), null))
+                    .collect(Collectors.toList());
+            parameters.add(new Parameter("text", String.format("%s %s", to.getFirstName(), to.getLastName().toUpperCase()), null));
+            component.setParameters(parameters);
+
+            final TextMessage textMessage = new TextMessage();
+            textMessage.setTemplate(template);
+            textMessage.setMessaging_product("whatsapp");
+            textMessage.setType("template");
+            String phoneNumber = this.recipient;
+            if (phoneNumber == null) {
+                phoneNumber = String.format("+%s%s", to.getPhoneIndex(), to.getPhone());
+            }
+            textMessage.setTo(phoneNumber);
+            this.textMessageService.message(textMessage);
+            return this.getNotificationStatus(
+                    notification,
+                    to.getId(),
+                    WHATSAPP,
+                    null, //createdMessage.getSid(),
+                    null //createdMessage.getStatus().name()
+            );
+        }).collect(Collectors.toList());
+    }
     /*
         public void send(final Notification notification) {
             notification.getContacts().parallelStream().forEach((Recipient to) -> {
@@ -64,7 +101,6 @@ public class WhatsappService {
                 //this.textMessageService.message(textMessage);
             });
         }
-    */
     @Async
     public List<NotificationStatus> send(final Notification notification) {
         return notification.getContacts().parallelStream().map((Recipient to) -> {
@@ -115,8 +151,8 @@ public class WhatsappService {
 
 
                 final NotificationStatus notificationStatus = new NotificationStatus();
-                final Object eventId = notification.getEventId();
-                notificationStatus.setEventId((String) eventId);
+                final String eventId = notification.getEventId();
+                notificationStatus.setEventId(eventId);
                 notificationStatus.setUserId(to.getId());
                 notificationStatus.setChannel(NotificationType.WHATSAPP);
 
@@ -158,5 +194,6 @@ public class WhatsappService {
         }
         return null;
     }
+    */
 
 }

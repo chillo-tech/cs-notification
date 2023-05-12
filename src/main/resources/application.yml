@@ -5,19 +5,29 @@ application:
     queue: "tech.notifications.queue"
 
 providers:
+  sendinblue:
+    host: https://api.sendinblue.com
+    path: v3/smtp/email
+    token: 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
+  callback:
+    host: https://api.notifications.chillo.fr/api/hooks
+    path: ${providers.callback.host}/api/hooks
   whatsapp:
-    token: EAAQB6FeiTJoBANewZAYjwrMiyjFonZC0JFBwZBfG6tlsT5KvNim5llZCs8EN26hD6fntKOM0YMXtzLwMnpUtrHSNrDM7hsZBAzlQdu1iBFFoZCGYVWL3DaKDXzMlnRDkWcKuY0Mdnlc0voyQOMDeZCxGuohUQiJX0K96c2TNjKAWfDmVGZAaU2wv61OtxRRPSzKZCOeHcDm7EYwZDZD
-    account-id: 105401078979193
-    phone: 102838372572347
-    host: https://graph.facebook.com/v14.0/${providers.whatsapp.phone}
+    token: EAAIPrVhqxp0BAGLS5au9e7DXTnOYcMgIZAg1mNQzWhvbXtD5NhzZCLSBn2fi6LA7mIksFc61PXQMq2MDWmdRPEZB16QyTjt5eZAlPb2P5bmvzhU9nYyPk3m4b4yZBCIspYKHToDUWZAlz3m1Jr2DaoZA0EnIrjQISk59E9KwtDMoiZCsjGC8cvhbJkx99Pbk05cRHjGMEaTVEgZDZD
+    account-id: 120793114319926
+    phone: 120089374390519
+    host: https://graph.facebook.com/v16.0/${providers.whatsapp.phone}
+    callback-path: ${providers.callback.path}/whatsapp
   twilio:
     host: https://api.twilio.com/2010-04-01/Accounts
-    account-id: AC303b2ae3b08ffdadb7388fcb4417a34e
-    account-secret: 8874919616ead2e8b86cbd9d5d4b0e0c
-    service-id: MG73626e3bcb964eea28d61b9bb81cf3f4
+    account-id: ACc934f187de61e29cad93d56dad1f55a7
+    account-secret: bbebbea191b5ab4e0583dd06633d73da
+    service-id: MG7d2363fb85d2c73240f82db2ac1a91f1
+    callback-path: ${providers.callback.path}/twilio
   vonage:
     api_key: 82dda85e
     api_secret: 4N7431cV36XN9TEO
+    callback-path: ${providers.callback.path}/vonage
   d7:
     CLIENT_ID: 8TTCIPUqAm4U99WVB7w59Q0BKnqKMQ32X1pHSWHA
     CLIENT_SECRET: KtnRDeF8cDEVOk9mD4EZYhftiZ7Ps8w6CiBZtfxZivPL0dbzbRl1E57b4bwhuyA7Bd0RVqs7k93g9YKqTbRyHxVOxZyhl5FvLChOBJ48T67lBUs8KeGwM9eOU6iaVt7i

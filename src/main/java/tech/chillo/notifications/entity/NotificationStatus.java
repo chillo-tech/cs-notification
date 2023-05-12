@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import tech.chillo.notifications.enums.NotificationType;
 
+import java.time.Instant;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,4 +27,5 @@ public class NotificationStatus {
     private String code;
     private String provider;
     private String price;
+    private Instant creation;
 }
