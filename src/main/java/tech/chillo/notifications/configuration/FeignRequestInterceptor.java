@@ -16,18 +16,23 @@ public class FeignRequestInterceptor implements RequestInterceptor {
     String ACCOUNT_SID;
     @Value("${providers.twilio.account-secret}")
     String AUTH_TOKEN;
-
+    @Value("${providers.sendinblue.token}")
+    String sendinblueToken;
     @Value("${providers.whatsapp.token}")
     String whatsappToken;
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
         log.info("Intercept request {}", requestTemplate.feignTarget().name());
-        
+
         requestTemplate.header("content-type", APPLICATION_JSON_VALUE);
         requestTemplate.header("produces", APPLICATION_JSON_VALUE);
         if (requestTemplate.feignTarget().name().equalsIgnoreCase("whatsappmessages")) {
             requestTemplate.header("Authorization", "Bearer " + this.whatsappToken);
+        }
+
+        if (requestTemplate.feignTarget().name().equalsIgnoreCase("sendinbluemessages")) {
+            requestTemplate.header("Authorization", "Bearer " + this.sendinblueToken);
         }
     }
 }
