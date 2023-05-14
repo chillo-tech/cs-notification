@@ -1,36 +1,4 @@
-application:
-  recipient:
-    sms: +33761705745
-    email: simachille@gmail.com
-providers:
-  callback:
-    host: https://8da7-2a01-e34-ef47-cc10-7405-1a24-71f4-602c.eu.ngrok.io
 spring:
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      authentication-database: admin
 
-  mail:
-    host: smtp-relay.sendinblue.com
-    port: 587
-    username: accueil@chillo.tech
-    password: pDXyM9QtTjYNJ8HV
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 100000
-        readTimeout: 100000
-        loggerLevel: full
-logging:
-  level:
-    org.springframework.security: DEBUG
-    tech.chillo.notifications: DEBUG
-org:
-  springframework:
-    web:
-      filter:
-        CommonsRequestLoggingFilter: DEBUG
+
 

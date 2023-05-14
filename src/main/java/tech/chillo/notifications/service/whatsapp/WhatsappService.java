@@ -1,40 +1,59 @@
 package tech.chillo.notifications.service.whatsapp;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import tech.chillo.notifications.entity.Notification;
 import tech.chillo.notifications.entity.NotificationStatus;
 import tech.chillo.notifications.entity.Recipient;
+import tech.chillo.notifications.entity.TemplateStatus;
+import tech.chillo.notifications.entity.template.Template;
+import tech.chillo.notifications.entity.template.TemplateComponent;
+import tech.chillo.notifications.entity.template.TemplateExample;
+import tech.chillo.notifications.entity.template.WhatsAppTemplate;
 import tech.chillo.notifications.repository.NotificationTemplateRepository;
+import tech.chillo.notifications.repository.TemplateStatusRepository;
 import tech.chillo.notifications.service.NotificationMapper;
 import tech.chillo.notifications.service.whatsapp.dto.Component;
 import tech.chillo.notifications.service.whatsapp.dto.Language;
 import tech.chillo.notifications.service.whatsapp.dto.Parameter;
 import tech.chillo.notifications.service.whatsapp.dto.TextMessage;
+import tech.chillo.notifications.service.whatsapp.dto.WhatsAppResponse;
 import tech.chillo.notifications.service.whatsapp.dto.WhatsappTemplate;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static tech.chillo.notifications.enums.NotificationType.WHATSAPP;
+import static tech.chillo.notifications.enums.TemplateCategory.UTILITY;
+import static tech.chillo.notifications.enums.TemplateComponentType.BODY;
+import static tech.chillo.notifications.enums.TemplateComponentType.FOOTER;
 
+@Slf4j
 @Service
 public class WhatsappService extends NotificationMapper {
 
+    private final TemplateStatusRepository templateStatusRepository;
     private final String recipient;
     private final TextMessageService textMessageService;
+    private final TemplateMessageService templateMessageService;
     private final NotificationTemplateRepository notificationTemplateRepository;
 
     public WhatsappService(
             @Value("${application.recipient.sms:#{null}}") final String recipient,
+            TemplateStatusRepository templateStatusRepository,
             TextMessageService textMessageService,
+            TemplateMessageService templateMessageService,
             NotificationTemplateRepository notificationTemplateRepository
     ) {
         super(notificationTemplateRepository);
+        this.templateStatusRepository = templateStatusRepository;
         this.recipient = recipient;
         this.textMessageService = textMessageService;
+        this.templateMessageService = templateMessageService;
         this.notificationTemplateRepository = notificationTemplateRepository;
     }
 
@@ -65,15 +84,66 @@ public class WhatsappService extends NotificationMapper {
                 phoneNumber = String.format("+%s%s", to.getPhoneIndex(), to.getPhone());
             }
             textMessage.setTo(phoneNumber);
-            this.textMessageService.message(textMessage);
+            WhatsAppResponse response = this.textMessageService.message(textMessage);
             return this.getNotificationStatus(
                     notification,
                     to.getId(),
                     WHATSAPP,
-                    null, //createdMessage.getSid(),
-                    null //createdMessage.getStatus().name()
+                    response.getMessages().get(0).getId(), //createdMessage.getSid(),
+                    "SENT" //createdMessage.getStatus().name()
             );
         }).collect(Collectors.toList());
+    }
+
+    public WhatsAppResponse createTemplate(Template templateInBDD) {
+        List<TemplateComponent> components = templateInBDD.getComponents();
+        components.add(
+                new TemplateComponent(
+                        FOOTER,
+                        null,
+                        "Ce message vous été transmis via ZEEVEN",
+                        null,
+                        null
+                )
+        );
+        components = components.stream().peek(templateComponent -> {
+            if (templateComponent.getType().equals(BODY)) {
+                String text = templateComponent.getText();
+                Map<String, Integer> mappings = templateInBDD.getWhatsAppMapping();
+                for (String key : mappings.keySet()) {
+                    text = text.replace(key, "" + mappings.get(key));
+                }
+                text = text.replaceAll("\\*\\*", "_");
+                templateComponent.setText(text);
+                TemplateExample templateExample = new TemplateExample();
+                templateExample.setBody_text(List.of(mappings.keySet().stream().toList()));
+                templateComponent.setExample(templateExample);
+            }
+        }).toList();
+
+        WhatsAppTemplate whatsAppTemplate = new WhatsAppTemplate(
+                templateInBDD.getName(),
+                null,
+                true,
+                "fr",
+                WHATSAPP,
+                UTILITY,
+                components
+        );
+        WhatsAppResponse whatsAppResponse = this.templateMessageService.template(whatsAppTemplate);
+        log.info("{}", whatsAppResponse);
+        this.templateStatusRepository.save(
+                new TemplateStatus(
+                        null,
+                        templateInBDD.getName(),
+                        whatsAppResponse.getId(),
+                        templateInBDD.getId(),
+                        whatsAppResponse.getStatus(),
+                        whatsAppResponse.getCategory(),
+                        Instant.now()
+                )
+        );
+        return whatsAppResponse;
     }
     /*
         public void send(final Notification notification) {
@@ -85,7 +155,7 @@ public class WhatsappService extends NotificationMapper {
 
                 template.setLanguage(new Language("en_US"));
 
-                final Component component = new Component();
+                final TemplateComponent component = new TemplateComponent();
                 component.setType("body");
                 final List<Parameter> parameters = notification.getParams().keySet()
                         .parallelStream().map(param -> new Parameter("text", notification.getParams().get(param), null))
@@ -184,7 +254,7 @@ public class WhatsappService extends NotificationMapper {
 
     private String processTemplate(Map model, String template) {
         try {
-            Template t = new Template("TemplateFromDBName", template, null);
+            WhatsAppTemplate t = new WhatsAppTemplate("TemplateFromDBName", template, null);
             Writer out = new StringWriter();
             t.process(model, out);
             return out.toString();

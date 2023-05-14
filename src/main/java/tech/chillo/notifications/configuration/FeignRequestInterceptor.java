@@ -31,8 +31,12 @@ public class FeignRequestInterceptor implements RequestInterceptor {
             requestTemplate.header("Authorization", "Bearer " + this.whatsappToken);
         }
 
+        if (requestTemplate.feignTarget().name().equalsIgnoreCase("whatsapp-template-messages")) {
+            requestTemplate.header("Authorization", "Bearer " + this.whatsappToken);
+        }
+
         if (requestTemplate.feignTarget().name().equalsIgnoreCase("sendinbluemessages")) {
-            requestTemplate.header("Authorization", "Bearer " + this.sendinblueToken);
+            requestTemplate.header("api-key", this.sendinblueToken);
         }
     }
 }

@@ -52,7 +52,7 @@ public class MailService extends NotificationMapper {
     @Async
     public List<NotificationStatus> send(final Notification notification) {
         return notification.getContacts().parallelStream().map((Recipient to) -> {
-            String messageToSend = String.valueOf(this.map(notification, to).get("messge"));
+            String messageToSend = String.valueOf(this.map(notification, to).get("message"));
 
             try {
                 Map<String, Object> result = this.sendMessageUsingSendinBlueAPI(notification, messageToSend);
@@ -75,10 +75,21 @@ public class MailService extends NotificationMapper {
         Parser parser = Parser.builder().build();
         Node document = parser.parse(messageToSend);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
+
+        String lastName = notification.getFrom().getLastName();
+        if (lastName != null) {
+            lastName = lastName.toUpperCase();
+        }
+
+        String firstName = notification.getFrom().getFirstName();
+        if (firstName != null) {
+            firstName = format("%s%s", firstName.substring(0, 1).toUpperCase(), firstName.substring(1).toLowerCase());
+        }
+
         Message message = new Message(
                 notification.getSubject(),
                 renderer.render(document),
-                new Contact(format("%s %s VIA ZEEVEN", notification.getFrom().getFirstName(), notification.getFrom().getLastName()), notification.getFrom().getEmail()),
+                new Contact(format("%s %s VIA ZEEVEN", firstName, lastName), notification.getFrom().getEmail()),
                 this.mappedContacts(notification.getContacts())
         );
         return this.sendinblueMessageService.message(message);
