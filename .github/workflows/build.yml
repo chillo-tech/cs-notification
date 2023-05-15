@@ -181,7 +181,8 @@ jobs:
           username: ${{ secrets.RECETTE_APPLICATIONS_USERNAME }}
           password: ${{ secrets.RECETTE_APPLICATIONS_PASSWPRD }}
           key: ${{ secrets.RECETTE_APPLICATIONS_SSH_PRIVATE_KEY }}
-          script: >
+          script:
+            >
             docker-compose
               -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml
               
@@ -196,7 +197,7 @@ jobs:
               -e providers.twilio.account-secret= ${{ secrets.TWILIO_ACCOUNT_SECRET }}
               -e providers.twilio.service-id= ${{ secrets.TWILIO_SERVICE_ID }}
 
-              -e providers.vonage.api_key= ${{ secrets.vonage.VONAGE_API_KEY }}
-              -e providers.vonage.api_secret= ${{ secrets.vonage.VONAGE_API_SECRET }}
+              -e providers.vonage.api_key= ${{ secrets.VONAGE_API_KEY }}
+              -e providers.vonage.api_secret= ${{ secrets.VONAGE_API_SECRET }}
               
               up -d
