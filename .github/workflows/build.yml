@@ -184,7 +184,7 @@ jobs:
           script: |
             docker-compose \
               -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml \
-              up -d \
+              -d \
               -e providers.sendinblue.token=${{ secrets.SENDINBLUE_TOKEN }} \
               -e providers.whatsapp.waba-id=${{ secrets.WHATSAPP_WABA_ID }} \
               -e providers.whatsapp.phone=${{ secrets.WHATSAPP_PHONE }} \
@@ -194,4 +194,5 @@ jobs:
               -e providers.twilio.account-secret=${{ secrets.TWILIO_ACCOUNT_SECRET }} \
               -e providers.twilio.service-id=${{ secrets.TWILIO_SERVICE_ID }} \
               -e providers.vonage.api_key=${{ secrets.VONAGE_API_KEY }} \
-              -e providers.vonage.api_secret=${{ secrets.VONAGE_API_SECRET }}
+              -e providers.vonage.api_secret=${{ secrets.VONAGE_API_SECRET }} \
+              run
