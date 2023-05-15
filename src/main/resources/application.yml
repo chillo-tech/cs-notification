@@ -8,6 +8,18 @@ providers:
   callback:
     host: https://api.notifications.chillo.fr/api/hooks
     path: ${providers.callback.host}/api/hooks
+  sendinblue:
+    host: https://api.brevo.com
+    path: v3/smtp/email
+  whatsapp:
+    host: https://graph.facebook.com/v16.0/${providers.whatsapp.phone}
+    template-host: https://graph.facebook.com/v16.0/${providers.whatsapp.waba-id}
+    callback-path: ${providers.callback.path}/whatsapp
+  twilio:
+    host: https://api.twilio.com/2010-04-01/Accounts
+    callback-path: ${providers.callback.path}/twilio
+  vonage:
+    callback-path: ${providers.callback.path}/vonage
 server:
   port : 9092
   servlet:
