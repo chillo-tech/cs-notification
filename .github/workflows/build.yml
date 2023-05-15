@@ -184,4 +184,4 @@ jobs:
           script: |
             docker-compose \
               -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml \
-              run ms-app -d
+              run -d
