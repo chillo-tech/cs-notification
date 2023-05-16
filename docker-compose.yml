@@ -10,6 +10,16 @@ services:
       - applications-network
     environment:
       - "SPRING_PROFILES_ACTIVE=recette"
+      - providers.sendinblue.token=${{ secrets.SENDINBLUE_TOKEN }} 
+      - providers.whatsapp.waba-id=${{ secrets.WHATSAPP_WABA_ID }} 
+      - providers.whatsapp.phone=${{ secrets.WHATSAPP_PHONE }} 
+      - providers.whatsapp.account-id=${{ secrets.WHATSAPP_ACCOUNT_ID }} 
+      - providers.whatsapp.token=${{ secrets.WHATSAPP_TOKEN }} 
+      - providers.twilio.account-id=${{ secrets.TWILIO_ACCOUNT_ID }} 
+      - providers.twilio.account-secret=${{ secrets.TWILIO_ACCOUNT_SECRET }} 
+      - providers.twilio.service-id=${{ secrets.TWILIO_SERVICE_ID }} 
+      - providers.vonage.api_key=${{ secrets.VONAGE_API_KEY }} 
+      - providers.vonage.api_secret=${{ secrets.VONAGE_API_SECRET }}
 
     labels:
       - "traefik.enable=true"
