@@ -9,7 +9,7 @@ services:
     networks:
       - applications-network
     environment:
-      - "SPRING_PROFILES_ACTIVE=recette"
+      - SPRING_PROFILES_ACTIVE=recette
       - providers.sendinblue.token=${{ secrets.SENDINBLUE_TOKEN }} 
       - providers.whatsapp.waba-id=${{ secrets.WHATSAPP_WABA_ID }} 
       - providers.whatsapp.phone=${{ secrets.WHATSAPP_PHONE }} 
