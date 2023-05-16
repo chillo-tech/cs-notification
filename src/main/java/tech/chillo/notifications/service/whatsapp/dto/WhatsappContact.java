@@ -5,17 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class WhatsAppResponse {
-    String id;
-    String status;
-    String category;
-    String messaging_product;
-    List<WhatsappContact> contacts;
-    List<WhatsAppResponseMessage> messages;
+public class WhatsappContact {
+    String input;
+    String wa_id;
+
 }

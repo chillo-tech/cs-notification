@@ -1,4 +1,4 @@
-package tech.chillo.notifications.records.sendinblue;
+package tech.chillo.notifications.records.brevo;
 
 import java.util.Set;
 

@@ -39,9 +39,9 @@ public class HooksController {
         this.hooksService.whatsapp(params);
     }
 
-    @PostMapping(path = "sendinblue", consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(path = "brevo", consumes = APPLICATION_JSON_VALUE)
     public void sendingblue(@RequestBody Map<String, Object> params) {
-        this.hooksService.sendinblue(params);
+        this.hooksService.brevo(params);
     }
 
     @GetMapping(path = "whatsapp")

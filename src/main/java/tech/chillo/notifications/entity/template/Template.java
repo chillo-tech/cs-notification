@@ -28,5 +28,5 @@ public class Template {
     List<TemplateComponent> components;
     List<NotificationType> types;
 
-    Map<String, Integer> whatsAppMapping;
+    Map<Integer, String> whatsAppMapping;
 }

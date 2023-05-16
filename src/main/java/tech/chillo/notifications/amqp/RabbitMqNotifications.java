@@ -6,17 +6,11 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import tech.chillo.notifications.entity.Notification;
 import tech.chillo.notifications.service.NotificationService;
-import tech.chillo.notifications.service.mail.MailService;
-import tech.chillo.notifications.service.sms.TwilioSMSService;
-import tech.chillo.notifications.service.whatsapp.WhatsappService;
 
 @AllArgsConstructor
 @Slf4j
 @Component
 public class RabbitMqNotifications {
-    private MailService mailService;
-    private TwilioSMSService twilioSMSService;
-    private WhatsappService whatsappService;
     private NotificationService notificationService;
 
     @RabbitListener(

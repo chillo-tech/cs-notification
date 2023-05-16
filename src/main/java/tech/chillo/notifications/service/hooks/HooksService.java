@@ -52,9 +52,9 @@ public class HooksService {
         this.notificationStatusRepository.save(notificationStatus);
     }
 
-    public void sendinblue(Map<String, Object> params) {
+    public void brevo(Map<String, Object> params) {
         if (params.get("event").toString().equalsIgnoreCase("opened")) {
-            log.info("sendinblue params {} ", params);
+            log.info("brevo params {} ", params);
         }
         NotificationStatus notificationStatus = getNotificationStatus("" + params.get("message-id"));
         notificationStatus.setStatus(String.format("%s", params.get("event")).toUpperCase());

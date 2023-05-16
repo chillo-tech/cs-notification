@@ -10,7 +10,7 @@ services:
       - applications-network
     environment:
       - SPRING_PROFILES_ACTIVE=recette
-      - providers.sendinblue.token=SENDINBLUE_TOKEN
+      - providers.brevo.token=SENDINBLUE_TOKEN
       - providers.whatsapp.waba-id=WHATSAPP_WABA_ID
       - providers.whatsapp.phone=WHATSAPP_PHONE
       - providers.whatsapp.account-id=WHATSAPP_ACCOUNT_ID
@@ -19,7 +19,7 @@ services:
       - providers.twilio.account-secret=TWILIO_ACCOUNT_SECRET
       - providers.twilio.service-id=TWILIO_SERVICE_ID
       - providers.vonage.api_key=VONAGE_API_KEY
-      - providers.vonage.api_secret=VONAGE_API_SECRE
+      - providers.vonage.api_secret=VONAGE_API_SECRET
 
     labels:
       - "traefik.enable=true"

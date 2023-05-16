@@ -5,4 +5,6 @@ import tech.chillo.notifications.entity.template.Template;
 
 public interface TemplateRepository extends MongoRepository<Template, String> {
     Template findBySlug(String name);
+
+    Template findByName(String name);
 }

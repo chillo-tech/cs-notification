@@ -36,7 +36,7 @@ public class TemplateService {
         if (templateInBDD == null) {
             TemplateComponent body = template.getComponents().stream().filter(templateComponent -> templateComponent.getType().equals(BODY)).findFirst().orElse(null);
             if (body != null && !Strings.isNullOrEmpty(body.getText())) {
-                Map<String, Integer> mappings = getMatchers(body.getText());
+                Map<Integer, String> mappings = getMatchers(body.getText());
                 template.setWhatsAppMapping(mappings);
             }
 
@@ -48,16 +48,16 @@ public class TemplateService {
         }
     }
 
-    private Map<String, Integer> getMatchers(String text) {
-        Map<String, Integer> mappers = new HashMap<String, Integer>();
+    private Map<Integer, String> getMatchers(String text) {
+        Map<Integer, String> mappers = new HashMap<>();
         Pattern VARIABLE_PATTERN = Pattern.compile("\\{\\{(.*?)\\}\\}");
         Matcher matcher = VARIABLE_PATTERN.matcher(text);
         int i = 1;
         while (matcher.find()) {
             String item = matcher.group();
             mappers.put(
-                    item.replaceAll("\\{", "").replaceAll("\\}", ""),
-                    i
+                    i,
+                    item.replaceAll("\\{", "").replaceAll("\\}", "")
             );
             i++;
         }

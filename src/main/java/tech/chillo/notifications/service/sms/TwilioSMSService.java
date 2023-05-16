@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static tech.chillo.notifications.data.ApplicationData.FOOTER_TEXT;
 import static tech.chillo.notifications.enums.NotificationType.SMS;
 
 @Slf4j
@@ -47,11 +48,13 @@ public class TwilioSMSService extends NotificationMapper {
     @Async
     public List<NotificationStatus> send(final Notification notification) {
         return notification.getContacts().parallelStream().map((Recipient to) -> {
-            String messageToSend = String.valueOf(this.map(notification, to).get("messge"));
+            String messageToSend = String.valueOf(this.map(notification, to).get("message"));
+
             String phoneNumber = this.recipient;
             if (phoneNumber == null) {
                 phoneNumber = String.format("+%s%s", to.getPhoneIndex(), to.getPhone());
             }
+            messageToSend = String.format("%s\n%s", messageToSend, FOOTER_TEXT);
 
             final Message createdMessage = Message.creator(
                             new com.twilio.type.PhoneNumber(phoneNumber),

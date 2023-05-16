@@ -1,6 +1,5 @@
 package tech.chillo.notifications.service;
 
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.chillo.notifications.entity.Notification;
 import tech.chillo.notifications.entity.NotificationStatus;
@@ -22,7 +21,6 @@ import static tech.chillo.notifications.enums.NotificationType.MAIL;
 import static tech.chillo.notifications.enums.NotificationType.SMS;
 import static tech.chillo.notifications.enums.NotificationType.WHATSAPP;
 
-@AllArgsConstructor
 @Service
 public class NotificationService {
     private MailService mailService;
@@ -32,20 +30,29 @@ public class NotificationService {
     private NotificationRepository notificationRepository;
     private NotificationStatusRepository notificationStatusRepository;
 
+    public NotificationService(MailService mailService, WhatsappService whatsappService, TwilioSMSService twilioSmsService, VonageSMSService vonageSMSService, NotificationRepository notificationRepository, NotificationStatusRepository notificationStatusRepository) {
+        this.mailService = mailService;
+        this.whatsappService = whatsappService;
+        this.twilioSmsService = twilioSmsService;
+        this.vonageSMSService = vonageSMSService;
+        this.notificationRepository = notificationRepository;
+        this.notificationStatusRepository = notificationStatusRepository;
+    }
+
     public void send(final Application application, final Notification notification, final List<NotificationType> types) {
         types.parallelStream().forEach(type -> {
             final List<NotificationStatus> notificationStatusList = new ArrayList<>();
             if (MAIL == type || EMAIL == type) {
-                //final List<NotificationStatus> mailStatusList = this.mailService.send(notification);
-                //notificationStatusList.addAll(mailStatusList);
+                final List<NotificationStatus> mailStatusList = this.mailService.send(notification);
+                notificationStatusList.addAll(mailStatusList);
             }
             if (WHATSAPP == type) {
                 final List<NotificationStatus> whatsappStatusList = this.whatsappService.send(notification);
                 notificationStatusList.addAll(whatsappStatusList);
             }
             if (SMS == type) {
-                //final List<NotificationStatus> smsStatusList = this.twilioSmsService.send(notification);
-                //notificationStatusList.addAll(smsStatusList);
+                final List<NotificationStatus> smsStatusList = this.twilioSmsService.send(notification);
+                notificationStatusList.addAll(smsStatusList);
             }
             notification.setType(type);
             notification.setCreation(Instant.now());

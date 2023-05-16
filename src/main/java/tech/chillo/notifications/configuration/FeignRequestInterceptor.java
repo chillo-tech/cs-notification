@@ -16,8 +16,8 @@ public class FeignRequestInterceptor implements RequestInterceptor {
     String ACCOUNT_SID;
     @Value("${providers.twilio.account-secret}")
     String AUTH_TOKEN;
-    @Value("${providers.sendinblue.token}")
-    String sendinblueToken;
+    @Value("${providers.brevo.token}")
+    String brevoToken;
     @Value("${providers.whatsapp.token}")
     String whatsappToken;
 
@@ -35,8 +35,8 @@ public class FeignRequestInterceptor implements RequestInterceptor {
             requestTemplate.header("Authorization", "Bearer " + this.whatsappToken);
         }
 
-        if (requestTemplate.feignTarget().name().equalsIgnoreCase("sendinbluemessages")) {
-            requestTemplate.header("api-key", this.sendinblueToken);
+        if (requestTemplate.feignTarget().name().equalsIgnoreCase("brevomessages")) {
+            requestTemplate.header("api-key", this.brevoToken);
         }
     }
 }

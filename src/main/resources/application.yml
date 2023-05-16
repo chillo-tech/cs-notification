@@ -8,7 +8,7 @@ providers:
   callback:
     host: https://api.notifications.chillo.fr/api/hooks
     path: ${providers.callback.host}/api/hooks
-  sendinblue:
+  brevo:
     host: https://api.brevo.com
     path: v3/smtp/email
   whatsapp:

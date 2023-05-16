@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import tech.chillo.notifications.entity.Notification;
 import tech.chillo.notifications.entity.NotificationStatus;
 import tech.chillo.notifications.entity.Recipient;
-import tech.chillo.notifications.records.sendinblue.Contact;
-import tech.chillo.notifications.records.sendinblue.Message;
+import tech.chillo.notifications.records.brevo.Contact;
+import tech.chillo.notifications.records.brevo.Message;
 import tech.chillo.notifications.repository.NotificationTemplateRepository;
 import tech.chillo.notifications.service.NotificationMapper;
 
@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static tech.chillo.notifications.data.ApplicationData.FOOTER_TEXT;
 import static tech.chillo.notifications.enums.NotificationType.MAIL;
 
 @Slf4j
@@ -36,15 +37,15 @@ import static tech.chillo.notifications.enums.NotificationType.MAIL;
 public class MailService extends NotificationMapper {
     private final JavaMailSender mailSender;
     private final String recipient;
-    private final SendinblueMessageService sendinblueMessageService;
+    private final SendinblueMessageService brevoMessageService;
 
     public MailService(
-            NotificationTemplateRepository notificationTemplateRepository,
-            JavaMailSender mailSender,
-            final SendinblueMessageService sendinblueMessageService,
+            final NotificationTemplateRepository notificationTemplateRepository,
+            final JavaMailSender mailSender,
+            final SendinblueMessageService brevoMessageService,
             @Value("${application.recipient.email:#{null}}") final String recipient) {
         super(notificationTemplateRepository);
-        this.sendinblueMessageService = sendinblueMessageService;
+        this.brevoMessageService = brevoMessageService;
         this.mailSender = mailSender;
         this.recipient = recipient;
     }
@@ -73,7 +74,7 @@ public class MailService extends NotificationMapper {
 
     private Map<String, Object> sendMessageUsingSendinBlueAPI(final Notification notification, final String messageToSend) throws MessagingException {
         Parser parser = Parser.builder().build();
-        Node document = parser.parse(messageToSend);
+        Node document = parser.parse(String.format("%s\n%s", messageToSend, FOOTER_TEXT));
         HtmlRenderer renderer = HtmlRenderer.builder().build();
 
         String lastName = notification.getFrom().getLastName();
@@ -92,7 +93,7 @@ public class MailService extends NotificationMapper {
                 new Contact(format("%s %s VIA ZEEVEN", firstName, lastName), notification.getFrom().getEmail()),
                 this.mappedContacts(notification.getContacts())
         );
-        return this.sendinblueMessageService.message(message);
+        return this.brevoMessageService.message(message);
     }
 
     private void sendMessage(final Notification notification, final String template) throws MessagingException {

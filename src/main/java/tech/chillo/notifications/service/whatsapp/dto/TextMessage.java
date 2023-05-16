@@ -13,8 +13,7 @@ public class TextMessage {
     private String to;
     private String type;
     private String messaging_product;
-    //private String recipient_type;
-
-    //private Text text;
+    private String recipient_type;
+    private Text text;
     private WhatsappTemplate template;
 }
