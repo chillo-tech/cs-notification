@@ -42,6 +42,18 @@ jobs:
       - name: update configs
         run: |
           sed -i 's|IMAGE_NAME|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.ref_name }}-${{ github.sha }}|' docker-compose.yml
+
+          sed -i 's|${{ secrets.SENDINBLUE_TOKEN }}|${{ secrets.SENDINBLUE_TOKEN }}|' docker-compose.yml
+          sed -i 's|${{ secrets.WHATSAPP_WABA_ID }}|${{ secrets.WHATSAPP_WABA_ID }}|' docker-compose.yml
+          sed -i 's|${{ secrets.WHATSAPP_PHONE }}|${{ secrets.WHATSAPP_PHONE }}|' docker-compose.yml
+          sed -i 's|${{ secrets.WHATSAPP_ACCOUNT_ID }}|${{ secrets.WHATSAPP_ACCOUNT_ID }}|' docker-compose.yml
+          sed -i 's|${{ secrets.WHATSAPP_TOKEN }}|${{ secrets.WHATSAPP_TOKEN }} |' docker-compose.yml
+          sed -i 's|${{ secrets.TWILIO_ACCOUNT_ID }}|${{ secrets.TWILIO_ACCOUNT_ID }}|' docker-compose.yml
+          sed -i 's|${{ secrets.TWILIO_ACCOUNT_SECRET }}|${{ secrets.TWILIO_ACCOUNT_SECRET }}|' docker-compose.yml
+          sed -i 's|${{ secrets.TWILIO_SERVICE_ID }}|${{ secrets.TWILIO_SERVICE_ID }}|' docker-compose.yml
+          sed -i 's|${{ secrets.VONAGE_API_KEY }}|${{ secrets.VONAGE_API_KEY }}|' docker-compose.yml
+          sed -i 's|${{ secrets.VONAGE_API_SECRET }}|${{ secrets.VONAGE_API_SECRET }}|' docker-compose.yml
+
           sed -i 's|APP_JAR|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.ref_name }}-${{ github.sha }}.jar|' Dockerfile
 
       - name: copy file via ssh password
@@ -129,17 +141,6 @@ jobs:
         run: |
           cat Dockerfile
           sed -i 's|APP_JAR|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.ref_name }}-${{ github.sha }}.jar|' Dockerfile
-
-          sed -i 's|${{ secrets.SENDINBLUE_TOKEN }}|${{ secrets.SENDINBLUE_TOKEN }}|' docker-compose.yml
-          sed -i 's|${{ secrets.WHATSAPP_WABA_ID }}|${{ secrets.WHATSAPP_WABA_ID }}|' docker-compose.yml
-          sed -i 's|${{ secrets.WHATSAPP_PHONE }}|${{ secrets.WHATSAPP_PHONE }}|' docker-compose.yml
-          sed -i 's|${{ secrets.WHATSAPP_ACCOUNT_ID }}|${{ secrets.WHATSAPP_ACCOUNT_ID }}|' docker-compose.yml
-          sed -i 's|${{ secrets.WHATSAPP_TOKEN }}|${{ secrets.WHATSAPP_TOKEN }} |' docker-compose.yml
-          sed -i 's|${{ secrets.TWILIO_ACCOUNT_ID }}|${{ secrets.TWILIO_ACCOUNT_ID }}|' docker-compose.yml
-          sed -i 's|${{ secrets.TWILIO_ACCOUNT_SECRET }}|${{ secrets.TWILIO_ACCOUNT_SECRET }}|' docker-compose.yml
-          sed -i 's|${{ secrets.TWILIO_SERVICE_ID }}|${{ secrets.TWILIO_SERVICE_ID }}|' docker-compose.yml
-          sed -i 's|${{ secrets.VONAGE_API_KEY }}|${{ secrets.VONAGE_API_KEY }}|' docker-compose.yml
-          sed -i 's|${{ secrets.VONAGE_API_SECRET }}|${{ secrets.VONAGE_API_SECRET }}|' docker-compose.yml
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
