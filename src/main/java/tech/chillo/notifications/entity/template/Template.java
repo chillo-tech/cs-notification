@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import tech.chillo.notifications.enums.Application;
 import tech.chillo.notifications.enums.NotificationType;
 import tech.chillo.notifications.enums.TemplateCategory;
 import tech.chillo.notifications.enums.TemplateState;
@@ -24,6 +25,7 @@ public class Template {
     TemplateState whatsAppState;
     String name;
     String slug;
+    Application application;
     TemplateCategory category;
     List<TemplateComponent> components;
     List<NotificationType> types;

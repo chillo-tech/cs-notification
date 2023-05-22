@@ -17,7 +17,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping(path = "v1/template", produces = APPLICATION_JSON_VALUE)
+@RequestMapping(path = "v1/notification-template", produces = APPLICATION_JSON_VALUE)
 public class NotificationTemplateController {
 
     private NotificationTemplateService notificationTemplateService;

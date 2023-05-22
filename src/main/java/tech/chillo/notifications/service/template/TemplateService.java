@@ -26,7 +26,7 @@ public class TemplateService {
 
     public void create(Template template) {
         String name = template.getName();
-        name = String.format("ze_%s", name);
+        name = String.format("%s", name);
         String slug = this.sharedService.toSlug(name.toLowerCase());
         template.setSlug(slug);
         template.setName(name);
