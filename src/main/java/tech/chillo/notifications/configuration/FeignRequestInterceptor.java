@@ -24,6 +24,7 @@ public class FeignRequestInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate requestTemplate) {
         log.info("Intercept request {}", requestTemplate.feignTarget().name());
+        log.info("whatsappToken {} brevoToken {}", this.whatsappToken, this.brevoToken);
 
         requestTemplate.header("content-type", APPLICATION_JSON_VALUE);
         requestTemplate.header("produces", APPLICATION_JSON_VALUE);
@@ -36,6 +37,7 @@ public class FeignRequestInterceptor implements RequestInterceptor {
         }
 
         if (requestTemplate.feignTarget().name().equalsIgnoreCase("brevomessages")) {
+            log.info("brevoToken {}", this.brevoToken);
             requestTemplate.header("api-key", this.brevoToken);
         }
     }

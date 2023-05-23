@@ -35,7 +35,7 @@ spring:
     virtual-host: prod-notifications
     template:
         default-receive-queue: "tech.notifications.queue"
- 
+
   data:
     mongodb:
       host: localhost
@@ -54,13 +54,6 @@ spring:
     protocol: smtp
     test-connection: true
 
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 100000
-        readTimeout: 100000
-        loggerLevel: full
 logging:
   level:
     org.springframework.security: DEBUG
