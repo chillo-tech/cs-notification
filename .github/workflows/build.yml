@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@master
       - name: update configs
         run: |
-          sed -i 's|IMAGE_NAME|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.ref_name }}-${{ github.sha }}|' docker-compose.yml
+          sed -i 's|IMAGE_NAME|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.sha }}|' docker-compose.yml
 
           sed -i 's|SENDINBLUE_TOKEN|${{ secrets.SENDINBLUE_TOKEN }}|' docker-compose.yml
           sed -i 's|WHATSAPP_WABA_ID|${{ secrets.WHATSAPP_WABA_ID }}|' docker-compose.yml
@@ -53,7 +53,7 @@ jobs:
           sed -i 's|VONAGE_API_KEY|${{ secrets.VONAGE_API_KEY }}|' docker-compose.yml
           sed -i 's|VONAGE_API_SECRET|${{ secrets.VONAGE_API_SECRET }}|' docker-compose.yml
 
-          sed -i 's|APP_JAR|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.ref_name }}-${{ github.sha }}.jar|' Dockerfile
+          sed -i 's|APP_JAR|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.sha }}.jar|' Dockerfile
 
       - name: copy file via ssh password
         uses: appleboy/scp-action@master
@@ -112,7 +112,7 @@ jobs:
     #    password: ${{ secrets.NEXUS_PASSWORD }}
     #    format: maven2
     #    repository: maven-releases
-    #   coordinates: groupId=com.cs artifactId=${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}} version=${{ github.ref_name }}-${{ github.sha }}
+    #   coordinates: groupId=com.cs artifactId=${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}} version=${{ github.sha }}
     #   assets: extension=jar
     #   filename: ${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.sha }}.jar
 
@@ -139,7 +139,7 @@ jobs:
       - name: update configs
         run: |
           cat Dockerfile
-          sed -i 's|APP_JAR|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.ref_name }}-${{ github.sha }}.jar|' Dockerfile
+          sed -i 's|APP_JAR|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.sha }}.jar|' Dockerfile
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -158,7 +158,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.ref_name }}-${{ github.sha }}
+          tags: simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.sha }}
 
   stop-container:
     name: 'Stop container'
@@ -176,7 +176,7 @@ jobs:
           script: |
             docker-compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml stop
             docker-compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml rm -f
-            docker rmi simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.ref_name }}-${{ github.sha }} -f
+            docker rmi simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.sha }} -f
 
   run-container:
     name: 'Run container'
