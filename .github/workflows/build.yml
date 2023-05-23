@@ -2,8 +2,7 @@ on:
   push:
     branches:
       #- develop
-      - deploiement
-      - notification
+      - feature/*
   workflow_dispatch:
 
 env:
