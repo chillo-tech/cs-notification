@@ -28,11 +28,14 @@ spring:
   application:
     name: ms-notifications
   rabbitmq:
+    host: 212.83.180.65
+    port: 5672
+    username: rbmq_admin
+    password: administrator
     virtual-host: prod-notifications
-    connection-timeout: 10000
     template:
         default-receive-queue: "tech.notifications.queue"
-
+ 
   data:
     mongodb:
       host: localhost
