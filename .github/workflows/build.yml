@@ -82,14 +82,14 @@ jobs:
 
       - name: rename
         run: |
-          mv ./target/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-0.0.1-SNAPSHOT.jar ./target/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.ref_name }}-${{ github.sha }}.jar
+          mv ./target/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-0.0.1-SNAPSHOT.jar ./target/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.sha }}.jar
           ls -al target
 
       - name: Upload jar
         uses: actions/upload-artifact@v3
         with:
           name: ${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}
-          path: ./target/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.ref_name }}-${{ github.sha }}.jar
+          path: ./target/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.sha }}.jar
 
   build-to-nexus:
     name: 'Build to nexus'
@@ -114,7 +114,7 @@ jobs:
     #    repository: maven-releases
     #   coordinates: groupId=com.cs artifactId=${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}} version=${{ github.ref_name }}-${{ github.sha }}
     #   assets: extension=jar
-    #   filename: ${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.ref_name }}-${{ github.sha }}.jar
+    #   filename: ${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.sha }}.jar
 
   dockerise-and-push-to-nexus:
     name: 'dockerise-and-push-to-nexus'
