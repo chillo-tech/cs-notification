@@ -1,5 +1,6 @@
 package tech.chillo.notifications.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tech.chillo.notifications.entity.Notification;
 import tech.chillo.notifications.entity.NotificationStatus;
@@ -21,6 +22,7 @@ import static tech.chillo.notifications.enums.NotificationType.MAIL;
 import static tech.chillo.notifications.enums.NotificationType.SMS;
 import static tech.chillo.notifications.enums.NotificationType.WHATSAPP;
 
+@Slf4j
 @Service
 public class NotificationService {
     private MailService mailService;
@@ -41,26 +43,32 @@ public class NotificationService {
 
     public void send(final Application application, final Notification notification, final List<NotificationType> types) {
         types.parallelStream().forEach(type -> {
-            final List<NotificationStatus> notificationStatusList = new ArrayList<>();
-            if (MAIL == type || EMAIL == type) {
-                final List<NotificationStatus> mailStatusList = this.mailService.send(notification);
-                notificationStatusList.addAll(mailStatusList);
-            }
-            if (WHATSAPP == type) {
-                final List<NotificationStatus> whatsappStatusList = this.whatsappService.send(notification);
-                notificationStatusList.addAll(whatsappStatusList);
-            }
-            if (SMS == type) {
-                final List<NotificationStatus> smsStatusList = this.twilioSmsService.send(notification);
-                notificationStatusList.addAll(smsStatusList);
-            }
-            notification.setType(type);
-            notification.setCreation(Instant.now());
-            notification.setApplication(application);
-            final Notification saved = this.notificationRepository.save(notification);
-            notificationStatusList.parallelStream().forEach(notificationStatus -> notificationStatus.setLocalNotificationId(saved.getId()));
+            try {
 
-            this.notificationStatusRepository.saveAll(notificationStatusList);
+                final List<NotificationStatus> notificationStatusList = new ArrayList<>();
+                if (MAIL == type || EMAIL == type) {
+                    final List<NotificationStatus> mailStatusList = this.mailService.send(notification);
+                    notificationStatusList.addAll(mailStatusList);
+                }
+                if (WHATSAPP == type) {
+                    final List<NotificationStatus> whatsappStatusList = this.whatsappService.send(notification);
+                    notificationStatusList.addAll(whatsappStatusList);
+                }
+                if (SMS == type) {
+                    final List<NotificationStatus> smsStatusList = this.twilioSmsService.send(notification);
+                    notificationStatusList.addAll(smsStatusList);
+                }
+                notification.setType(type);
+                notification.setCreation(Instant.now());
+                notification.setApplication(application);
+                final Notification saved = this.notificationRepository.save(notification);
+                notificationStatusList.parallelStream().forEach(notificationStatus -> notificationStatus.setLocalNotificationId(saved.getId()));
+
+                this.notificationStatusRepository.saveAll(notificationStatusList);
+            } catch (Exception e) {
+                log.info("ERREUR LORS DE L'ENVOI d'un message");
+                log.error("ERREUR LORS DE L'ENVOI d'un message", e);
+            }
         });
 
     }
