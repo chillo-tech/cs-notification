@@ -15,6 +15,7 @@ public abstract class Profile {
     protected String firstName;
     protected String lastName;
     protected String email;
+    protected boolean trial;
     protected String phoneIndex;
     protected String phone;
 }

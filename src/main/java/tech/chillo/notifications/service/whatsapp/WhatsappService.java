@@ -91,13 +91,21 @@ public class WhatsappService extends NotificationMapper {
 
     @Async
     public List<NotificationStatus> send(final Notification notification) {
+        if (notification.getFrom().isTrial()) {
+            return disabledAccountComponents(notification);
+        } else {
+            return activeAccountComponents(notification);
+        }
+
+    }
+
+
+    public List<NotificationStatus> activeAccountComponents(final Notification notification) {
         String templateName = "ze_say_hello";
         Template templateInBDD = this.templateRepository.findByName(templateName);
         return notification.getContacts().parallelStream().map((Recipient to) -> {
             final WhatsappTemplate template = new WhatsappTemplate();
             template.setName(templateName);
-            //template.setNamespace("newcourseevent");
-
             template.setLanguage(new Language("fr"));
 
             final Component component = new Component();
@@ -107,7 +115,7 @@ public class WhatsappService extends NotificationMapper {
             final List<Parameter> parameters = templateInBDDParams.keySet()
                     .parallelStream().map(param -> new Parameter("text", params.get(templateInBDDParams.get(param)), null))
                     .collect(Collectors.toList());
-            //parameters.add(new Parameter("text", String.format("%s %s", to.getFirstName(), to.getLastName().toUpperCase()), null));
+
             component.setParameters(parameters);
             template.setComponents(List.of(component));
             final TextMessage textMessage = new TextMessage();
@@ -129,6 +137,35 @@ public class WhatsappService extends NotificationMapper {
             );
         }).collect(Collectors.toList());
     }
+
+
+    public List<NotificationStatus> disabledAccountComponents(final Notification notification) {
+        String templateName = "sample_template";
+        return notification.getContacts().parallelStream().map((Recipient to) -> {
+            final WhatsappTemplate template = new WhatsappTemplate();
+            template.setName(templateName);
+            template.setLanguage(new Language("en"));
+
+            final TextMessage textMessage = new TextMessage();
+            textMessage.setTemplate(template);
+            textMessage.setMessaging_product("whatsapp");
+            textMessage.setType("template");
+            String phoneNumber = this.recipient;
+            if (phoneNumber == null) {
+                phoneNumber = String.format("+%s%s", to.getPhoneIndex(), to.getPhone());
+            }
+            textMessage.setTo(phoneNumber);
+            WhatsAppResponse response = this.textMessageService.message(textMessage);
+            return this.getNotificationStatus(
+                    notification,
+                    to.getId(),
+                    WHATSAPP,
+                    response.getMessages().get(0).getId(), //createdMessage.getSid(),
+                    "SENT" //createdMessage.getStatus().name()
+            );
+        }).collect(Collectors.toList());
+    }
+
 
     public WhatsAppResponse createTemplate(Template templateInBDD) {
         List<TemplateComponent> components = templateInBDD.getComponents();
