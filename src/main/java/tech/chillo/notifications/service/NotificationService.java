@@ -47,16 +47,16 @@ public class NotificationService {
 
                 final List<NotificationStatus> notificationStatusList = new ArrayList<>();
                 if (MAIL == type || EMAIL == type) {
-                    //final List<NotificationStatus> mailStatusList = this.mailService.send(notification);
-                    //notificationStatusList.addAll(mailStatusList);
+                    final List<NotificationStatus> mailStatusList = this.mailService.send(notification);
+                    notificationStatusList.addAll(mailStatusList);
                 }
                 if (WHATSAPP == type) {
                     final List<NotificationStatus> whatsappStatusList = this.whatsappService.send(notification);
                     notificationStatusList.addAll(whatsappStatusList);
                 }
                 if (SMS == type) {
-                    //final List<NotificationStatus> smsStatusList = this.twilioSmsService.send(notification);
-                    //notificationStatusList.addAll(smsStatusList);
+                    final List<NotificationStatus> smsStatusList = this.twilioSmsService.send(notification);
+                    notificationStatusList.addAll(smsStatusList);
                 }
                 notification.setType(type);
                 notification.setCreation(Instant.now());
