@@ -144,7 +144,7 @@ public class WhatsappService extends NotificationMapper {
         return notification.getContacts().parallelStream().map((Recipient to) -> {
             final WhatsappTemplate template = new WhatsappTemplate();
             template.setName(templateName);
-            template.setLanguage(new Language("en"));
+            template.setLanguage(new Language("en_US"));
 
             final TextMessage textMessage = new TextMessage();
             textMessage.setTemplate(template);
