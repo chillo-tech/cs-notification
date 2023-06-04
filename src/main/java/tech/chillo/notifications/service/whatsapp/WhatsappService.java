@@ -25,6 +25,7 @@ import tech.chillo.notifications.service.whatsapp.dto.WhatsAppResponse;
 import tech.chillo.notifications.service.whatsapp.dto.WhatsappTemplate;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,11 +92,17 @@ public class WhatsappService extends NotificationMapper {
 
     @Async
     public List<NotificationStatus> send(final Notification notification) {
-        if (notification.getFrom().isTrial()) {
-            return disabledAccountComponents(notification);
-        } else {
-            return activeAccountComponents(notification);
+        try {
+            if (notification.getFrom().isTrial()) {
+                return disabledAccountComponents(notification);
+            } else {
+                return activeAccountComponents(notification);
+            }
+        } catch (Exception e) {
+            log.info("ERREUR LORS DE L'ENVOI d'un message");
+            log.error("ERREUR LORS DE L'ENVOI d'un message", e);
         }
+        return new ArrayList<>();
 
     }
 
@@ -164,7 +171,7 @@ public class WhatsappService extends NotificationMapper {
                 phoneNumber = String.format("+%s%s", notification.getFrom().getPhoneIndex(), notification.getFrom().getPhone());
             }
             textMessage.setTo(phoneNumber);
-            
+
             WhatsAppResponse response = this.textMessageService.message(textMessage);
             return this.getNotificationStatus(
                     notification,
