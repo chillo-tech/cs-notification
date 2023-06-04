@@ -35,7 +35,9 @@ public class HooksService {
 
     public void whatsapp(Map<String, Object> params) {
         log.info("whatsapp {}", params);
-        NotificationStatus notificationStatus = getNotificationStatus(params.get("MessageSid").toString());
+
+        NotificationStatus notificationStatus = new NotificationStatus();
+        notificationStatus.setStatus("DELIVERED");
         notificationStatus.setProvider("WHATSAPP");
         notificationStatus.setChannel(WHATSAPP);
     }
