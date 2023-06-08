@@ -52,11 +52,11 @@ public class MailService extends NotificationMapper {
 
     @Async
     public List<NotificationStatus> send(final Notification notification) {
-        return notification.getContacts().parallelStream().map((Recipient to) -> {
+        return notification.getContacts().stream().map((Recipient to) -> {
             String messageToSend = String.valueOf(this.map(notification, to).get("message"));
 
             try {
-                Map<String, Object> result = this.sendMessageUsingSendinBlueAPI(notification, messageToSend);
+                Map<String, Object> result = this.sendMessageUsingSendinBlueAPI(notification, messageToSend, to);
                 return this.getNotificationStatus(
                         notification,
                         to.getId(),
@@ -72,9 +72,9 @@ public class MailService extends NotificationMapper {
     }
 
 
-    private Map<String, Object> sendMessageUsingSendinBlueAPI(final Notification notification, final String messageToSend) throws MessagingException {
+    private Map<String, Object> sendMessageUsingSendinBlueAPI(final Notification notification, final String messageToSend, Recipient to) throws MessagingException {
         Parser parser = Parser.builder().build();
-        Node document = parser.parse(String.format("%s\n%s", messageToSend, FOOTER_TEXT));
+        Node document = parser.parse(String.format("%s<p>%s</p>", messageToSend, FOOTER_TEXT));
         HtmlRenderer renderer = HtmlRenderer.builder().build();
 
         String lastName = notification.getFrom().getLastName();
@@ -91,7 +91,7 @@ public class MailService extends NotificationMapper {
                 notification.getSubject(),
                 renderer.render(document),
                 new Contact(format("%s %s VIA ZEEVEN", firstName, lastName), notification.getFrom().getEmail()),
-                this.mappedContacts(notification.getContacts())
+                this.mappedContacts(Set.of(to))
         );
         return this.brevoMessageService.message(message);
     }

@@ -17,11 +17,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static tech.chillo.notifications.enums.NotificationType.EMAIL;
-import static tech.chillo.notifications.enums.NotificationType.MAIL;
-import static tech.chillo.notifications.enums.NotificationType.SMS;
-import static tech.chillo.notifications.enums.NotificationType.WHATSAPP;
-
 @Slf4j
 @Service
 public class NotificationService {
@@ -42,21 +37,29 @@ public class NotificationService {
     }
 
     public void send(final Application application, final Notification notification, final List<NotificationType> types) {
-        types.parallelStream().forEach(type -> {
+        types.forEach(type -> {
             try {
 
                 final List<NotificationStatus> notificationStatusList = new ArrayList<>();
-                if (MAIL == type || EMAIL == type) {
-                    final List<NotificationStatus> mailStatusList = this.mailService.send(notification);
-                    notificationStatusList.addAll(mailStatusList);
-                }
-                if (WHATSAPP == type) {
-                    final List<NotificationStatus> whatsappStatusList = this.whatsappService.send(notification);
-                    notificationStatusList.addAll(whatsappStatusList);
-                }
-                if (SMS == type) {
-                    final List<NotificationStatus> smsStatusList = this.twilioSmsService.send(notification);
-                    notificationStatusList.addAll(smsStatusList);
+                switch (type) {
+                    case MAIL:
+                    case EMAIL:
+                        log.info("Message de type {}", type);
+                        final List<NotificationStatus> mailStatusList = this.mailService.send(notification);
+                        notificationStatusList.addAll(mailStatusList);
+                        break;
+                    case WHATSAPP:
+                        log.info("Message de type {}", type);
+                        final List<NotificationStatus> whatsappStatusList = this.whatsappService.send(notification);
+                        notificationStatusList.addAll(whatsappStatusList);
+                        break;
+                    case SMS:
+                        log.info("Message de type {}", type);
+                        final List<NotificationStatus> smsStatusList = this.twilioSmsService.send(notification);
+                        notificationStatusList.addAll(smsStatusList);
+                        break;
+                    default:
+                        log.info("type {} inconnu", type);
                 }
                 notification.setType(type);
                 notification.setCreation(Instant.now());

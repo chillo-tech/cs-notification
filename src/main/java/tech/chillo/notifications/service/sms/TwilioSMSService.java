@@ -61,6 +61,7 @@ public class TwilioSMSService extends NotificationMapper {
                             this.twilioServciceId,
                             messageToSend
                     )
+
                     .setStatusCallback(URI.create(this.callbackPath))
                     .create();
             return this.getNotificationStatus(

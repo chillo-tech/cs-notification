@@ -110,7 +110,7 @@ public class WhatsappService extends NotificationMapper {
     public List<NotificationStatus> activeAccountComponents(final Notification notification) {
         String templateName = "ze_say_hello";
         Template templateInBDD = this.templateRepository.findByName(templateName);
-        return notification.getContacts().parallelStream().map((Recipient to) -> {
+        return notification.getContacts().stream().map((Recipient to) -> {
             final WhatsappTemplate template = new WhatsappTemplate();
             template.setName(templateName);
             template.setLanguage(new Language("fr"));
@@ -149,7 +149,7 @@ public class WhatsappService extends NotificationMapper {
     public List<NotificationStatus> disabledAccountComponents(final Notification notification) {
 
         String templateName = "ze_test_template";
-        return notification.getContacts().parallelStream().map((Recipient to) -> {
+        return notification.getContacts().stream().map((Recipient to) -> {
             final Component component = new Component();
             component.setType("body");
             component.setParameters(
@@ -168,7 +168,7 @@ public class WhatsappService extends NotificationMapper {
             textMessage.setType("template");
             String phoneNumber = this.recipient;
             if (phoneNumber == null) {
-                phoneNumber = String.format("+%s%s", notification.getFrom().getPhoneIndex(), notification.getFrom().getPhone());
+                phoneNumber = String.format("+%s%s", to.getPhoneIndex(), to.getPhone());
             }
             textMessage.setTo(phoneNumber);
 
