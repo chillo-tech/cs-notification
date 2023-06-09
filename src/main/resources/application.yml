@@ -6,7 +6,7 @@ application:
 
 providers:
   callback:
-    host: https://api.notifications.chillo.fr/api/hooks
+    host: https://api.notifications.chillo.fr
     path: ${providers.callback.host}/api/hooks
   brevo:
     host: https://api.brevo.com
