@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import tech.chillo.notifications.records.whatsapp.WhatsappNotification;
 import tech.chillo.notifications.service.hooks.HooksService;
 
 import java.util.Map;
@@ -35,8 +36,8 @@ public class HooksController {
     }
 
     @PostMapping(path = "whatsapp", consumes = APPLICATION_JSON_VALUE)
-    public void whatsapp(@RequestBody Map<String, Object> params) {
-        this.hooksService.whatsapp(params);
+    public void whatsapp(@RequestBody WhatsappNotification notification) {
+        this.hooksService.whatsapp(notification);
     }
 
     @PostMapping(path = "brevo", consumes = APPLICATION_JSON_VALUE)

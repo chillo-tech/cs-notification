@@ -19,6 +19,7 @@ public class NotificationStatus {
     @Id
     private String id;
     private String eventId;
+    private String recipient;
     private String userId;
     private String providerNotificationId;
     private String localNotificationId;

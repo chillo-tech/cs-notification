@@ -1,12 +1,17 @@
 package tech.chillo.notifications.service.hooks;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import tech.chillo.notifications.entity.NotificationStatus;
+import tech.chillo.notifications.records.whatsapp.WhatsappChangeValueStatus;
+import tech.chillo.notifications.records.whatsapp.WhatsappEntry;
+import tech.chillo.notifications.records.whatsapp.WhatsappNotification;
 import tech.chillo.notifications.repository.NotificationStatusRepository;
 
+import java.util.List;
 import java.util.Map;
 
 import static tech.chillo.notifications.enums.NotificationType.MAIL;
@@ -33,13 +38,28 @@ public class HooksService {
         this.notificationStatusRepository.save(notificationStatus);
     }
 
-    public void whatsapp(Map<String, Object> params) {
-        log.info("whatsapp {}", params);
+    public void whatsapp(WhatsappNotification notification) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        log.info("whatsapp {}", objectMapper.convertValue(notification, Map.class));
+        List<WhatsappEntry> entry = notification.entry();
+        entry.stream().peek(item -> {
+            item.changes().stream().peek(whatsappChange -> {
+                List<WhatsappChangeValueStatus> statuses = whatsappChange.value().statuses();
+                if (statuses != null) {
+                    statuses.stream().peek(status -> {
 
-        NotificationStatus notificationStatus = new NotificationStatus();
-        notificationStatus.setStatus("DELIVERED");
-        notificationStatus.setProvider("WHATSAPP");
-        notificationStatus.setChannel(WHATSAPP);
+                        NotificationStatus notificationStatus = getNotificationStatus(item.id());
+                        notificationStatus.setStatus(status.status());
+                        notificationStatus.setProvider("WHATSAPP");
+                        notificationStatus.setRecipient(status.recipient_id());
+
+                        notificationStatus.setId(null);
+                        notificationStatus.setChannel(WHATSAPP);
+                        this.notificationStatusRepository.save(notificationStatus);
+                    });
+                }
+            });
+        });
     }
 
 
