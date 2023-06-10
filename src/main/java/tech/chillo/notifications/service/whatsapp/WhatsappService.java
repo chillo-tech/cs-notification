@@ -140,7 +140,7 @@ public class WhatsappService extends NotificationMapper {
                     to.getId(),
                     WHATSAPP,
                     response.getMessages().get(0).getId(), //createdMessage.getSid(),
-                    "SENT" //createdMessage.getStatus().name()
+                    "QUEUED" //createdMessage.getStatus().name()
             );
             notificationStatus.setProvider("WHATSAPP");
             return notificationStatus;
