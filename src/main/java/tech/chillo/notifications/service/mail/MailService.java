@@ -77,7 +77,7 @@ public class MailService extends NotificationMapper {
 
     private Map<String, Object> sendMessageUsingSendinBlueAPI(final Notification notification, final String messageToSend, Recipient to) throws MessagingException {
         Parser parser = Parser.builder().build();
-        Node document = parser.parse(String.format("%s<p>%s</p>", messageToSend, FOOTER_TEXT));
+        Node document = parser.parse(String.format("%s<p>%s</p>", messageToSend.replaceAll("\\n", "<br />"), FOOTER_TEXT));
         HtmlRenderer renderer = HtmlRenderer.builder().build();
 
         String lastName = notification.getFrom().getLastName();
