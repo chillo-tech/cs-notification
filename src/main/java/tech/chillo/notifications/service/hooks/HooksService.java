@@ -49,7 +49,7 @@ public class HooksService {
                     statuses.forEach(status -> {
 
                         NotificationStatus notificationStatus = getNotificationStatus(status.id());
-                        notificationStatus.setStatus(status.status());
+                        notificationStatus.setStatus(status.status().toUpperCase());
                         notificationStatus.setProvider("WHATSAPP");
                         notificationStatus.setRecipient(status.recipient_id());
 
