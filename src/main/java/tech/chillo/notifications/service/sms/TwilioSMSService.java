@@ -67,13 +67,15 @@ public class TwilioSMSService extends NotificationMapper {
                     .setFrom(this.twilioAlphaId)
                     .setStatusCallback(URI.create(this.callbackPath))
                     .create();
-            return this.getNotificationStatus(
+            NotificationStatus notificationStatus = this.getNotificationStatus(
                     notification,
                     to.getId(),
                     SMS,
                     createdMessage.getSid(),
                     createdMessage.getStatus().name()
             );
+            notificationStatus.setProvider("TWILIO");
+            return notificationStatus;
 
         }).collect(Collectors.toList());
     }

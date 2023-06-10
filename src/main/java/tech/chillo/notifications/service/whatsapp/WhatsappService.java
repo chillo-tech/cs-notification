@@ -135,13 +135,15 @@ public class WhatsappService extends NotificationMapper {
             }
             textMessage.setTo(phoneNumber);
             WhatsAppResponse response = this.textMessageService.message(textMessage);
-            return this.getNotificationStatus(
+            NotificationStatus notificationStatus = this.getNotificationStatus(
                     notification,
                     to.getId(),
                     WHATSAPP,
                     response.getMessages().get(0).getId(), //createdMessage.getSid(),
                     "SENT" //createdMessage.getStatus().name()
             );
+            notificationStatus.setProvider("WHATSAPP");
+            return notificationStatus;
         }).collect(Collectors.toList());
     }
 

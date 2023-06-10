@@ -57,13 +57,16 @@ public class MailService extends NotificationMapper {
 
             try {
                 Map<String, Object> result = this.sendMessageUsingSendinBlueAPI(notification, messageToSend, to);
-                return this.getNotificationStatus(
+
+                NotificationStatus notificationStatus = this.getNotificationStatus(
                         notification,
                         to.getId(),
                         MAIL,
                         result.get("messageId").toString(),
                         "INITIAL"
                 );
+                notificationStatus.setProvider("BREVO");
+                return notificationStatus;
             } catch (MessagingException e) {
                 e.printStackTrace();
             }

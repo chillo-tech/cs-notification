@@ -42,13 +42,13 @@ public class HooksService {
         ObjectMapper objectMapper = new ObjectMapper();
         log.info("whatsapp {}", objectMapper.convertValue(notification, Map.class));
         List<WhatsappEntry> entry = notification.entry();
-        entry.stream().peek(item -> {
-            item.changes().stream().peek(whatsappChange -> {
+        entry.forEach(item -> {
+            item.changes().forEach(whatsappChange -> {
                 List<WhatsappChangeValueStatus> statuses = whatsappChange.value().statuses();
                 if (statuses != null) {
-                    statuses.stream().peek(status -> {
+                    statuses.forEach(status -> {
 
-                        NotificationStatus notificationStatus = getNotificationStatus(item.id());
+                        NotificationStatus notificationStatus = getNotificationStatus(status.id());
                         notificationStatus.setStatus(status.status());
                         notificationStatus.setProvider("WHATSAPP");
                         notificationStatus.setRecipient(status.recipient_id());
