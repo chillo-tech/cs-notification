@@ -1,6 +1,7 @@
 package tech.chillo.notifications.service.hooks;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,11 @@ public class HooksService {
     public void vonage(Map<String, Object> params) {
         log.info("vonage {}", params);
         NotificationStatus notificationStatus = getNotificationStatus(params.get("MessageSid").toString());
-        notificationStatus.setStatus(params.get("status").toString());
+        String status = params.get("status").toString();
+        if (!Strings.isNullOrEmpty(status)) {
+            status = status.toUpperCase();
+        }
+        notificationStatus.setStatus(status);
         notificationStatus.setPrice(params.get("price").toString());
         notificationStatus.setCode(params.get("err-code").toString());
         notificationStatus.setProvider("VONAGE");
@@ -49,7 +54,11 @@ public class HooksService {
                     statuses.forEach(status -> {
 
                         NotificationStatus notificationStatus = getNotificationStatus(status.id());
-                        notificationStatus.setStatus(status.status().toUpperCase());
+                        String messageStatus = status.status();
+                        if (!Strings.isNullOrEmpty(messageStatus)) {
+                            messageStatus = messageStatus.toUpperCase();
+                        }
+                        notificationStatus.setStatus(messageStatus);
                         notificationStatus.setProvider("WHATSAPP");
                         notificationStatus.setRecipient(status.recipient_id());
 
@@ -66,7 +75,12 @@ public class HooksService {
     public void twilio(MultiValueMap<String, Object> params) {
         log.info("twilio params {} ", params);
         NotificationStatus notificationStatus = getNotificationStatus("" + params.get("MessageSid").toArray()[0]);
-        notificationStatus.setStatus(String.format("%s", params.get("MessageStatus").toArray()[0]).toUpperCase());
+        String status = String.format("%s", params.get("MessageStatus").toArray()[0]);
+        if (!Strings.isNullOrEmpty(status)) {
+            status = status.toUpperCase();
+        }
+        notificationStatus.setStatus(status);
+        notificationStatus.setStatus(status);
         notificationStatus.setProvider("TWILIO");
         notificationStatus.setChannel(SMS);
 
@@ -79,8 +93,12 @@ public class HooksService {
             log.info("brevo params {} ", params);
         }
         NotificationStatus notificationStatus = getNotificationStatus("" + params.get("message-id"));
-        notificationStatus.setStatus(String.format("%s", params.get("event")).toUpperCase());
-        notificationStatus.setProvider("SENDINBLUE");
+        String status = String.format("%s", params.get("event")).toUpperCase();
+        if (!Strings.isNullOrEmpty(status)) {
+            status = status.toUpperCase();
+        }
+        notificationStatus.setStatus(status);
+        notificationStatus.setProvider("BREVO");
         notificationStatus.setChannel(MAIL);
 
         notificationStatus.setId(null);
