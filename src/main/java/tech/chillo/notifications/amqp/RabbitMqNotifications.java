@@ -13,34 +13,34 @@ import tech.chillo.notifications.service.NotificationService;
 public class RabbitMqNotifications {
     private NotificationService notificationService;
 
-    @RabbitListener(
-            queues = "${application.notifications.queue}",
-            returnExceptions = "rabbitErrorHandler",
-            errorHandler = "rabbitErrorHandler"
-    )
-    public void handleMessage(final String message) {
-        log.info("Traitement du message {}", message);
-    }
-
+    /*
+        @RabbitListener(
+                queues = "${application.notifications.queue}",
+                returnExceptions = "rabbitErrorHandler",
+                errorHandler = "rabbitErrorHandler"
+        )
+        public void handleMessage(final String message) {
+            log.info("Traitement du message {}", message);
+        }
+    */
     @RabbitListener(
             queues = "${application.messages.queue}",
             returnExceptions = "rabbitErrorHandler",
             errorHandler = "rabbitErrorHandler"
     )
-    public void handleMessage(final Notification message) {
-        log.info("Traitement de la notification {} {}", message.getEventId(), message.getSubject());
-        this.notificationService.send(message.getApplication(), message, message.getChannels().stream().toList());
+    public void handleMessage(final Notification notification) {
         /*
-        message.getChannels().forEach(channel -> {
-            switch (channel) {
-                case EMAIL -> {
-                    this.mailService.send(message);
-                }
-                case SMS -> this.twilioSMSService.send(message);
-                //case WHATSAPP -> this.whatsappService.send(message);
-            }
-        });
+        log.info("Traitement du message {}", message);
+        final Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .serializeNulls()
+                .registerTypeAdapter(LocalDate.class, new LocalDateTimeTypeAdapter())
+                .registerTypeAdapter(LocalDate.class, new LocalDateTimeTypeAdapter())
+                .create();
 
-         */
+        final Notification notification = gson.fromJson(message, Notification.class);
+        */
+        log.info("Traitement de la notification {} {}", notification.getEventId(), notification.getSubject());
+        this.notificationService.send(notification.getApplication(), notification, notification.getChannels().stream().toList());
     }
 }

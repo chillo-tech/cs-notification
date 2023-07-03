@@ -20,18 +20,18 @@ import java.util.List;
 @Slf4j
 @Service
 public class NotificationService {
-    private MailService mailService;
-    private WhatsappService whatsappService;
-    private TwilioSMSService twilioSmsService;
-    private VonageSMSService vonageSMSService;
-    private NotificationRepository notificationRepository;
-    private NotificationStatusRepository notificationStatusRepository;
+    private final MailService mailService;
+    private final WhatsappService whatsappService;
+    private final TwilioSMSService twilioSmsService;
+    private final VonageSMSService vonageSMSService;
+    private final NotificationRepository notificationRepository;
+    private final NotificationStatusRepository notificationStatusRepository;
 
-    public NotificationService(MailService mailService, WhatsappService whatsappService, TwilioSMSService twilioSmsService, VonageSMSService vonageSMSService, NotificationRepository notificationRepository, NotificationStatusRepository notificationStatusRepository) {
+    public NotificationService(final MailService mailService, final WhatsappService whatsappService, final TwilioSMSService twilioSmsService, final VonageSMSService vonageSMSService, final NotificationRepository notificationRepository, final NotificationStatusRepository notificationStatusRepository) {
         this.mailService = mailService;
         this.whatsappService = whatsappService;
-        this.twilioSmsService = twilioSmsService;
         this.vonageSMSService = vonageSMSService;
+        this.twilioSmsService = twilioSmsService;
         this.notificationRepository = notificationRepository;
         this.notificationStatusRepository = notificationStatusRepository;
     }
@@ -42,24 +42,22 @@ public class NotificationService {
 
                 final List<NotificationStatus> notificationStatusList = new ArrayList<>();
                 switch (type) {
-                    case MAIL:
-                    case EMAIL:
+                    case MAIL, EMAIL -> {
                         log.info("Message de type {}", type);
                         final List<NotificationStatus> mailStatusList = this.mailService.send(notification);
                         notificationStatusList.addAll(mailStatusList);
-                        break;
-                    case WHATSAPP:
+                    }
+                    case WHATSAPP -> {
                         log.info("Message de type {}", type);
                         final List<NotificationStatus> whatsappStatusList = this.whatsappService.send(notification);
                         notificationStatusList.addAll(whatsappStatusList);
-                        break;
-                    case SMS:
+                    }
+                    case SMS -> {
                         log.info("Message de type {}", type);
                         final List<NotificationStatus> smsStatusList = this.twilioSmsService.send(notification);
                         notificationStatusList.addAll(smsStatusList);
-                        break;
-                    default:
-                        log.info("type {} inconnu", type);
+                    }
+                    default -> log.info("type {} inconnu", type);
                 }
                 notification.setType(type);
                 notification.setCreation(Instant.now());
@@ -68,7 +66,7 @@ public class NotificationService {
                 notificationStatusList.parallelStream().forEach(notificationStatus -> notificationStatus.setLocalNotificationId(saved.getId()));
 
                 this.notificationStatusRepository.saveAll(notificationStatusList);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 log.info("ERREUR LORS DE L'ENVOI d'un message");
                 log.error("ERREUR LORS DE L'ENVOI d'un message", e);
             }
@@ -76,7 +74,7 @@ public class NotificationService {
 
     }
 
-    public List<NotificationStatus> statistics(String id) {
+    public List<NotificationStatus> statistics(final String id) {
         return this.notificationStatusRepository.findByEventId(id);
     }
 }

@@ -20,6 +20,7 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -28,21 +29,21 @@ import java.util.regex.Pattern;
 public abstract class NotificationMapper {
     private final NotificationTemplateRepository notificationTemplateRepository;
 
-    public NotificationMapper(NotificationTemplateRepository notificationTemplateRepository) {
+    public NotificationMapper(final NotificationTemplateRepository notificationTemplateRepository) {
         this.notificationTemplateRepository = notificationTemplateRepository;
     }
 
-    protected Map<String, Object> map(Notification notification, Recipient to) {
+    protected Map<String, Object> map(final Notification notification, final Recipient to) {
         try {
 
             // Paramètres transmis pour le message
-            Map<String, Object> params = notification.getParams();
+            Map<String, List<Object>> params = notification.getParams();
 
             if (params == null) {
                 params = new HashMap<>();
             }
             final Object message = params.get("message");
-            String messageAsString = null;
+            String messageAsString = "";
 
             // Informations de l'utilisateur dans le template
             if (message != null) {
@@ -61,17 +62,21 @@ public abstract class NotificationMapper {
                     }
                 }
             }
-            params.put("message", messageAsString);
-            params.put("firstName", to.getFirstName());
-            params.put("lastName", to.getLastName());
-            params.put("civility", to.getCivility());
-            params.put("email", to.getEmail());
-            params.put("phone", to.getPhone());
-            params.put("phoneIndex", to.getPhoneIndex());
+            params.put("message", List.of(messageAsString));
+            params.put("firstName", List.of(to.getFirstName()));
+            params.put("lastName", List.of(to.getLastName()));
+            params.put("civility", List.of(to.getCivility()));
+            params.put("email", List.of(to.getEmail()));
+            if (!Strings.isNullOrEmpty(to.getPhone())) {
+                params.put("phone", List.of(to.getPhone()));
+            }
+            if (!Strings.isNullOrEmpty(to.getPhoneIndex())) {
+                params.put("phoneIndex", List.of(to.getPhoneIndex()));
+            }
             String messageToSend = notification.getMessage();
 
             if (!Strings.isNullOrEmpty(notification.getTemplate())) {
-                NotificationTemplate notificationTemplate = this.notificationTemplateRepository
+                final NotificationTemplate notificationTemplate = this.notificationTemplateRepository
                         .findByApplicationAndName(notification.getApplication(), notification.getTemplate())
                         .orElseThrow(() -> new IllegalArgumentException(String.format("Aucun template %s n'existe pour %s", notification.getTemplate(), notification.getApplication())));
                 //final String template = this.textTemplateEngine.process(notificationTemplate.getContent(), context);
@@ -82,13 +87,13 @@ public abstract class NotificationMapper {
                 messageToSend = this.processTemplate(params, messageToSend);
             }
             return Map.of("message", messageToSend, "params", params);
-        } catch (IntrospectionException | IllegalAccessException | InvocationTargetException e) {
+        } catch (final IntrospectionException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    protected NotificationStatus getNotificationStatus(Notification notification, String userId, NotificationType notificationType, String providerId, String status) {
+    protected NotificationStatus getNotificationStatus(final Notification notification, final String userId, final NotificationType notificationType, final String providerId, final String status) {
         final NotificationStatus notificationStatus = new NotificationStatus();
         notificationStatus.setEventId(notification.getEventId());
         notificationStatus.setLocalNotificationId(notification.getId());
@@ -100,16 +105,46 @@ public abstract class NotificationMapper {
         return notificationStatus;
     }
 
-    private String processTemplate(Map model, String template) {
+    private String processTemplate(final Map<String, List<Object>> model, final String template) {
+        final Map<String, Object> oneItemMap = new HashMap<>();
+        final Map<String, List<Object>> moreThanOneItemMap = new HashMap<>();
+        model.keySet()
+                .parallelStream()
+                .forEach(key -> {
+                    if (model.get(key).size() == 1) {
+                        oneItemMap.put(key, model.get(key).get(0));
+                    } else {
+                        oneItemMap.put(key, "${" + key + "}");
+                    }
+                });
+        model.keySet()
+                .parallelStream()
+                .filter(key -> model.get(key).size() > 1)
+                .forEach(key -> moreThanOneItemMap.put(key, model.get(key)));
+
+        final String[] parsedTemplate = {this.processTemplateWithValues(oneItemMap, template)};
+        moreThanOneItemMap.keySet().forEach(key -> {
+            final List<Object> values = moreThanOneItemMap.get(key);
+            for (final Object replacement : values) {
+                parsedTemplate[0] = parsedTemplate[0].replaceFirst(String.format("%s%s%s", "\\$\\{", key, "}"), (String) replacement);
+            }
+        });
+        return parsedTemplate[0];
+    }
+
+    private String processTemplateWithValues(final Map<String, Object> model, final String template) {
+
         try {
-            Template t = new Template("TemplateFromDBName", template, null);
-            Writer out = new StringWriter();
+            final Template t = new Template("TemplateFromDBName", template, null);
+            final Writer out = new StringWriter();
             t.process(model, out);
             return out.toString();
 
-        } catch (TemplateException | IOException e) {
+        } catch (final TemplateException | IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return "";
     }
+
+
 }

@@ -1,6 +1,7 @@
 package tech.chillo.notifications.records;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.collections4.MultiValuedMap;
 import tech.chillo.notifications.enums.NotificationType;
 
 import java.util.List;
@@ -13,8 +14,8 @@ public record Notification(
         @JsonProperty("eventId") String eventId,
         @JsonProperty("message") String message,
         @JsonProperty("channels") List<NotificationType> channels,
-        @JsonProperty("from") Profile from,
-        @JsonProperty("contacts") List<Profile> contacts,
-        @JsonProperty("params") Map<String, Object> params
+        @JsonProperty("from") MessageProfile from,
+        @JsonProperty("contacts") List<MessageProfile> contacts,
+        @JsonProperty("params") Map<String, List<Object>> params
 ) {
 }

@@ -12,9 +12,7 @@ public class RabbitErrorHandler implements RabbitListenerErrorHandler {
     @Override
     public Object handleError(final Message message, final org.springframework.messaging.Message<?> message1, final ListenerExecutionFailedException e) throws Exception {
         e.printStackTrace();
-        log.info("message.toString(), e");
         log.info(message.toString(), e);
-        log.info("message.toString(), e");
         return null;
     }
 }

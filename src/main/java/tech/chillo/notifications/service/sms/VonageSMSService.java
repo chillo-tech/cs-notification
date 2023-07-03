@@ -57,7 +57,7 @@ public class VonageSMSService {
         return notification.getContacts().parallelStream().map((Recipient to) -> {
             try {
                 notification.setContacts(Set.of(to));
-                Map<String, Object> params = notification.getParams();
+                Map<String, List<Object>>params = notification.getParams();
 
                 if (params == null) {
                     params = new HashMap<>();
@@ -79,13 +79,13 @@ public class VonageSMSService {
                         }
                     }
                 }
-                params.put("message", messageAsString);
-                params.put("firstName", to.getFirstName());
-                params.put("lastName", to.getLastName());
-                params.put("civility", to.getCivility());
-                params.put("email", to.getEmail());
-                params.put("phone", to.getPhone());
-                params.put("phoneIndex", to.getPhoneIndex());
+                params.put("message", List.of(messageAsString));
+                params.put("firstName", List.of(to.getFirstName()));
+                params.put("lastName", List.of(to.getLastName()));
+                params.put("civility", List.of(to.getCivility()));
+                params.put("email", List.of(to.getEmail()));
+                params.put("phone", List.of(to.getPhone()));
+                params.put("phoneIndex", List.of(to.getPhoneIndex()));
                 String messageToSend = notification.getMessage();
 
                 if (!Strings.isNullOrEmpty(notification.getTemplate())) {
@@ -130,7 +130,7 @@ public class VonageSMSService {
         }).collect(Collectors.toList());
     }
 
-    private String processTemplate(Map model, String template) {
+    private String processTemplate(Map<String, List<Object>> model, String template) {
         try {
             Template t = new Template("TemplateFromDBName", template, null);
             Writer out = new StringWriter();
