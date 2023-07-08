@@ -10,6 +10,7 @@ services:
       - applications-network
     environment:
       - SPRING_PROFILES_ACTIVE=recette
+      - spring.rabbitmq.host=192.168.1.101
       - providers.brevo.token=SENDINBLUE_TOKEN
       - providers.whatsapp.waba-id=WHATSAPP_WABA_ID
       - providers.whatsapp.phone=WHATSAPP_PHONE
