@@ -1,19 +1,30 @@
 version: '3.8'
 services:
   ms-app:
-    container_name: ms-leganda
+    container_name: ms-notifications
     restart: always
     image: IMAGE_NAME
     ports:
-      - "27190:9091"
+      - "27192:9092"
     networks:
       - applications-network
     environment:
-      - "SPRING_PROFILES_ACTIVE=recette"
+      - SPRING_PROFILES_ACTIVE=recette
+      - spring.rabbitmq.host=192.168.1.101
+      - providers.brevo.token=SENDINBLUE_TOKEN
+      - providers.whatsapp.waba-id=WHATSAPP_WABA_ID
+      - providers.whatsapp.phone=WHATSAPP_PHONE
+      - providers.whatsapp.account-id=WHATSAPP_ACCOUNT_ID
+      - providers.whatsapp.token=WHATSAPP_TOKEN
+      - providers.twilio.account-id=TWILIO_ACCOUNT_ID
+      - providers.twilio.account-secret=TWILIO_ACCOUNT_SECRET
+      - providers.twilio.service-id=TWILIO_SERVICE_ID
+      - providers.vonage.api_key=VONAGE_API_KEY
+      - providers.vonage.api_secret=VONAGE_API_SECRET
 
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ms-leganda.rule=Headers(`X-Host`, `api.leganda.chillo.fr`)"
+      - "traefik.http.routers.ms-notifications.rule=Headers(`X-Host`, `api.notifications.chillo.fr`)"
       - "traefik.docker.network=applications-network"
 
 networks:
