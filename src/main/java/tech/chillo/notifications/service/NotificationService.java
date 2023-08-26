@@ -16,6 +16,8 @@ import tech.chillo.notifications.service.whatsapp.WhatsappService;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -76,5 +78,35 @@ public class NotificationService {
 
     public List<NotificationStatus> statistics(final String id) {
         return this.notificationStatusRepository.findByEventId(id);
+    }
+
+    public void sendInvitation(final Map<String, Object> notificationParams) {
+        final Notification notification = new Notification();
+        final String application = (String) notificationParams.get("application");
+        final List<NotificationType> types = ((List<String>) notificationParams.get("channels")).stream().map(NotificationType::valueOf).collect(Collectors.toList());
+        types.forEach(type -> {
+            try {
+
+                final List<NotificationStatus> notificationStatusList = new ArrayList<>();
+                switch (type) {
+                    case WHATSAPP -> {
+                        log.info("Message de type {}", type);
+                        final List<NotificationStatus> whatsappStatusList = this.whatsappService.sendFromParams(notificationParams, type);
+                        notificationStatusList.addAll(whatsappStatusList);
+                    }
+                    default -> log.info("type {} inconnu", type);
+                }
+                notification.setType(type);
+                notification.setCreation(Instant.now());
+                notification.setApplication(Application.valueOf(application));
+                final Notification saved = this.notificationRepository.save(notification);
+                notificationStatusList.parallelStream().forEach(notificationStatus -> notificationStatus.setLocalNotificationId(saved.getId()));
+
+                this.notificationStatusRepository.saveAll(notificationStatusList);
+            } catch (final Exception e) {
+                log.info("ERREUR LORS DE L'ENVOI d'un message");
+                log.error("ERREUR LORS DE L'ENVOI d'un message", e);
+            }
+        });
     }
 }

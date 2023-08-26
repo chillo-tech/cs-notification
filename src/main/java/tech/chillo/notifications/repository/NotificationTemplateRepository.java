@@ -19,4 +19,6 @@ public interface NotificationTemplateRepository extends MongoRepository<Notifica
     List<NotificationTemplate> findByApplicationAndNameIn(String application, Iterable<String> names);
 
     List<NotificationTemplate> findByApplication(String application);
+
+    NotificationTemplate findByName(String templateName);
 }

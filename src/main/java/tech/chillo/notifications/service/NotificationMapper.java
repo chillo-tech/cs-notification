@@ -105,7 +105,7 @@ public abstract class NotificationMapper {
         return notificationStatus;
     }
 
-    private String processTemplate(final Map<String, List<Object>> model, final String template) {
+    protected String processTemplate(final Map<String, List<Object>> model, final String template) {
         final Map<String, Object> oneItemMap = new HashMap<>();
         final Map<String, List<Object>> moreThanOneItemMap = new HashMap<>();
         model.keySet()
@@ -145,6 +145,5 @@ public abstract class NotificationMapper {
         }
         return "";
     }
-
-
+    
 }

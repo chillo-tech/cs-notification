@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      host: db-mongo
+      authentication-database: admin
+  mail:
+    host: mails.dev
+
+

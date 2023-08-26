@@ -22,13 +22,17 @@ public class FeignRequestInterceptor implements RequestInterceptor {
     String whatsappToken;
 
     @Override
-    public void apply(RequestTemplate requestTemplate) {
+    public void apply(final RequestTemplate requestTemplate) {
         log.info("Intercept request {}", requestTemplate.feignTarget().name());
         log.info("whatsappToken {} brevoToken {}", this.whatsappToken, this.brevoToken);
 
         requestTemplate.header("content-type", APPLICATION_JSON_VALUE);
         requestTemplate.header("produces", APPLICATION_JSON_VALUE);
         if (requestTemplate.feignTarget().name().equalsIgnoreCase("whatsappmessages")) {
+            requestTemplate.header("Authorization", "Bearer " + this.whatsappToken);
+        }
+
+        if (requestTemplate.feignTarget().name().equalsIgnoreCase("whatsappendpoint")) {
             requestTemplate.header("Authorization", "Bearer " + this.whatsappToken);
         }
 
