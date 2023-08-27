@@ -151,7 +151,7 @@ jobs:
   run-container:
     name: 'Run container'
     runs-on: ubuntu-latest
-    needs: [stop-container]
+    needs: [dockerise-and-push-to-nexus]
     steps:
       - name: Run container
         uses: appleboy/ssh-action@master
