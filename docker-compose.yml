@@ -9,23 +9,21 @@ services:
     networks:
       - applications-network
     environment:
-      - SPRING_PROFILES_ACTIVE=recette
-      - spring.rabbitmq.host=192.168.1.101
-      - providers.brevo.token=SENDINBLUE_TOKEN
-      - providers.whatsapp.waba-id=WHATSAPP_WABA_ID
-      - providers.whatsapp.phone=WHATSAPP_PHONE
-      - providers.whatsapp.account-id=WHATSAPP_ACCOUNT_ID
-      - providers.whatsapp.token=WHATSAPP_TOKEN
-      - providers.twilio.account-id=TWILIO_ACCOUNT_ID
-      - providers.twilio.account-secret=TWILIO_ACCOUNT_SECRET
-      - providers.twilio.service-id=TWILIO_SERVICE_ID
-      - providers.vonage.api_key=VONAGE_API_KEY
-      - providers.vonage.api_secret=VONAGE_API_SECRET
-
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.ms-notifications.rule=Headers(`X-Host`, `api.notifications.chillo.fr`)"
-      - "traefik.docker.network=applications-network"
+      - "SPRING_PROFILES_ACTIVE=recette"
+      - "providers.brevo.token=${SENDINBLUE_TOKEN}"
+      - "providers.whatsapp.waba-id=${WHATSAPP_WABA_ID}"
+      - "providers.whatsapp.phone=${WHATSAPP_PHONE}"
+      - "providers.whatsapp.account-id=${WHATSAPP_ACCOUNT_ID}"
+      - "providers.whatsapp.token=${WHATSAPP_TOKEN}"
+      - "providers.twilio.account-id=${TWILIO_ACCOUNT_ID}"
+      - "providers.twilio.account-secret=${TWILIO_ACCOUNT_SECRET}"
+      - "providers.twilio.service-id=${TWILIO_SERVICE_ID}"
+      - "providers.vonage.api_key=${VONAGE_API_KEY}"
+      - "providers.vonage.api_secret=${VONAGE_API_SECRET}"
+      - "spring.rabbitmq.host=${RABBITMQ_IP}"
+      - "spring.rabbitmq.port=${RABBITMQ_PORT}"
+      - "spring.rabbitmq.password=${RABBITMQ_PASSWORD}"
+      - "spring.rabbitmq.username=${RABBITMQ_USERNAME}"
 
 networks:
   applications-network:

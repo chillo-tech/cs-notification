@@ -41,18 +41,6 @@ jobs:
       - name: update configs
         run: |
           sed -i 's|IMAGE_NAME|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.sha }}|' docker-compose.yml
-
-          sed -i 's|SENDINBLUE_TOKEN|${{ secrets.SENDINBLUE_TOKEN }}|' docker-compose.yml
-          sed -i 's|WHATSAPP_WABA_ID|${{ secrets.WHATSAPP_WABA_ID }}|' docker-compose.yml
-          sed -i 's|WHATSAPP_PHONE|${{ secrets.WHATSAPP_PHONE }}|' docker-compose.yml
-          sed -i 's|WHATSAPP_ACCOUNT_ID|${{ secrets.WHATSAPP_ACCOUNT_ID }}|' docker-compose.yml
-          sed -i 's|WHATSAPP_TOKEN|${{ secrets.WHATSAPP_TOKEN }} |' docker-compose.yml
-          sed -i 's|TWILIO_ACCOUNT_ID|${{ secrets.TWILIO_ACCOUNT_ID }}|' docker-compose.yml
-          sed -i 's|TWILIO_ACCOUNT_SECRET|${{ secrets.TWILIO_ACCOUNT_SECRET }}|' docker-compose.yml
-          sed -i 's|TWILIO_SERVICE_ID|${{ secrets.TWILIO_SERVICE_ID }}|' docker-compose.yml
-          sed -i 's|VONAGE_API_KEY|${{ secrets.VONAGE_API_KEY }}|' docker-compose.yml
-          sed -i 's|VONAGE_API_SECRET|${{ secrets.VONAGE_API_SECRET }}|' docker-compose.yml
-
           sed -i 's|APP_JAR|simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}-${{ github.sha }}.jar|' Dockerfile
 
       - name: copy file via ssh password
@@ -160,24 +148,6 @@ jobs:
           push: true
           tags: simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.sha }}
 
-  stop-container:
-    name: 'Stop container'
-    runs-on: ubuntu-latest
-    needs: [copy-configs, build-to-nexus, dockerise-and-push-to-nexus]
-    steps:
-      - name: Stop container
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.RECETTE_APPLICATIONS_HOST }}
-          port: ${{ secrets.RECETTE_APPLICATIONS_PORT }}
-          username: ${{ secrets.RECETTE_APPLICATIONS_USERNAME }}
-          password: ${{ secrets.RECETTE_APPLICATIONS_PASSWPRD }}
-          key: ${{ secrets.RECETTE_APPLICATIONS_SSH_PRIVATE_KEY }}
-          script: |
-            docker-compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml stop
-            docker-compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml rm -f
-            docker rmi simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.sha }} -f
-
   run-container:
     name: 'Run container'
     runs-on: ubuntu-latest
@@ -192,6 +162,30 @@ jobs:
           password: ${{ secrets.RECETTE_APPLICATIONS_PASSWPRD }}
           key: ${{ secrets.RECETTE_APPLICATIONS_SSH_PRIVATE_KEY }}
           script: |
-            docker-compose \
-              -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml \
-              up -d
+              docker compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml stop
+              docker compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml rm -f
+              docker rmi -f simachille/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}:${{ github.sha }}
+
+              rm -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+
+              echo SENDINBLUE_TOKEN=${{ secrets.SENDINBLUE_TOKEN }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo WHATSAPP_WABA_ID=${{ secrets.WHATSAPP_WABA_ID }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo WHATSAPP_PHONE=${{ secrets.WHATSAPP_PHONE }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo WHATSAPP_ACCOUNT_ID=${{ secrets.WHATSAPP_ACCOUNT_ID }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo WHATSAPP_TOKEN=${{ secrets.WHATSAPP_TOKEN }}  >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo TWILIO_ACCOUNT_ID=${{ secrets.TWILIO_ACCOUNT_ID }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo TWILIO_ACCOUNT_SECRET=${{ secrets.TWILIO_ACCOUNT_SECRET }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo TWILIO_SERVICE_ID=${{ secrets.TWILIO_SERVICE_ID }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo VONAGE_API_KEY=${{ secrets.VONAGE_API_KEY }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo VONAGE_API_SECRET=${{ secrets.VONAGE_API_SECRET }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+
+              echo RABBITMQ_IP=${{ secrets.RABBITMQ_IP }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+              echo RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }} >> /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+
+              docker compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml pull
+              docker compose -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/docker-compose.yml up -d
+
+              rm -f /opt/applications/${{env.APPLICATION_NAME}}/${{env.APPLICATION_TYPE}}-${{env.APPLICATION_NAME}}/.env
+
