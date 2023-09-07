@@ -345,9 +345,10 @@ public class WhatsappService extends NotificationMapper {
                         String.format(
                                 "%s %s%s %s",
                                 CIVILITY_MAPPING.get(to.getCivility()),
-                                String.valueOf(to.getFirstName().charAt(0)).toUpperCase(),
-                                to.getFirstName().substring(1).toLowerCase(),
-                                to.getLastName().toUpperCase()
+                                String.valueOf(formattedFirstName.charAt(0)).toUpperCase(),
+                                formattedFirstName.substring(1).toLowerCase(),
+
+                                String.valueOf(to.getLastName().isEmpty() ? "" : to.getLastName()).toUpperCase()
                         ),
                         null
                 ),
