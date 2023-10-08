@@ -122,6 +122,7 @@ public class WhatsappService extends NotificationMapper {
             }
         } catch (final Exception e) {
             log.error("ERREUR LORS DE L'ENVOI d'un message", e);
+            e.printStackTrace();
         }
         return new ArrayList<>();
 
@@ -419,6 +420,7 @@ public class WhatsappService extends NotificationMapper {
             final byte[] bytes = Base64.getDecoder().decode(image);
             return ImageIO.read(new ByteArrayInputStream(bytes));
         } catch (final IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

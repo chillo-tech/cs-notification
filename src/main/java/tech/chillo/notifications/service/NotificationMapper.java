@@ -3,6 +3,7 @@ package tech.chillo.notifications.service;
 import com.google.common.base.Strings;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import lombok.extern.slf4j.Slf4j;
 import tech.chillo.notifications.entity.Notification;
 import tech.chillo.notifications.entity.NotificationStatus;
 import tech.chillo.notifications.entity.NotificationTemplate;
@@ -26,6 +27,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public abstract class NotificationMapper {
     private final NotificationTemplateRepository notificationTemplateRepository;
 
@@ -42,6 +44,13 @@ public abstract class NotificationMapper {
             if (params == null) {
                 params = new HashMap<>();
             }
+
+            final Map<String, List<Object>> othersParams = new HashMap<>();
+            to.getOthers().forEach(other -> othersParams.put(other.getLabel().replaceAll("\\s+", ""), List.of(other.getValue())));
+            for (final String otherParamKey : othersParams.keySet()) {
+                params.put(otherParamKey, othersParams.get(otherParamKey));
+            }
+
             final Object message = params.get("message");
             String messageAsString = "";
 
@@ -109,7 +118,6 @@ public abstract class NotificationMapper {
         final Map<String, Object> oneItemMap = new HashMap<>();
         final Map<String, List<Object>> moreThanOneItemMap = new HashMap<>();
         model.keySet()
-                .parallelStream()
                 .forEach(key -> {
                     if (model.get(key).size() == 1) {
                         oneItemMap.put(key, model.get(key).get(0));
@@ -118,7 +126,7 @@ public abstract class NotificationMapper {
                     }
                 });
         model.keySet()
-                .parallelStream()
+                .stream()
                 .filter(key -> model.get(key).size() > 1)
                 .forEach(key -> moreThanOneItemMap.put(key, model.get(key)));
 
@@ -135,7 +143,15 @@ public abstract class NotificationMapper {
     private String processTemplateWithValues(final Map<String, Object> model, final String template) {
 
         try {
-            final Template t = new Template("TemplateFromDBName", template, null);
+            String templateHoHandle = template;
+            final Matcher m = Pattern.compile("\\$\\{(.*?)}").matcher(template);
+            while (m.find()) {
+                final String initialVariable = m.group(1);
+                final String finalVariable = initialVariable.replaceAll("\\s+", "");
+                templateHoHandle = templateHoHandle.replaceAll(initialVariable, finalVariable);
+            }
+
+            final Template t = new Template("TemplateFromDBName", templateHoHandle, null);
             final Writer out = new StringWriter();
             t.process(model, out);
             return out.toString();
@@ -145,5 +161,5 @@ public abstract class NotificationMapper {
         }
         return "";
     }
-    
+
 }

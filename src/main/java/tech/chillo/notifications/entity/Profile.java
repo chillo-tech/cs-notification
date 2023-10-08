@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -18,4 +20,5 @@ public abstract class Profile {
     protected boolean trial;
     protected String phoneIndex;
     protected String phone;
+    protected List<ProfileParams> others;
 }

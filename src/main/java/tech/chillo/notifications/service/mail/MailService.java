@@ -53,21 +53,20 @@ public class MailService extends NotificationMapper {
     @Async
     public List<NotificationStatus> send(final Notification notification) {
         return notification.getContacts().stream().map((Recipient to) -> {
-            String messageToSend = String.valueOf(this.map(notification, to).get("message"));
 
             try {
-                Map<String, Object> result = this.sendMessageUsingSendinBlueAPI(notification, messageToSend, to);
-
-                NotificationStatus notificationStatus = this.getNotificationStatus(
+                final String messageToSend = String.valueOf(this.map(notification, to).get("message"));
+                final Map<String, Object> result = this.sendMessageUsingSendinBlueAPI(notification, messageToSend, to);
+                final NotificationStatus notificationStatus = this.getNotificationStatus(
                         notification,
                         to.getId(),
                         MAIL,
-                        result.get("messageId").toString(),
+                        "", //result.get("messageId").toString(), // TODO decommenter
                         "INITIAL"
                 );
                 notificationStatus.setProvider("BREVO");
                 return notificationStatus;
-            } catch (MessagingException e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
             }
             return null;
@@ -75,10 +74,10 @@ public class MailService extends NotificationMapper {
     }
 
 
-    private Map<String, Object> sendMessageUsingSendinBlueAPI(final Notification notification, final String messageToSend, Recipient to) throws MessagingException {
-        Parser parser = Parser.builder().build();
-        Node document = parser.parse(String.format("%s<p>%s</p>", messageToSend.replaceAll("\\n", "<br />"), FOOTER_TEXT));
-        HtmlRenderer renderer = HtmlRenderer.builder().build();
+    private Map<String, Object> sendMessageUsingSendinBlueAPI(final Notification notification, final String messageToSend, final Recipient to) throws MessagingException {
+        final Parser parser = Parser.builder().build();
+        final Node document = parser.parse(String.format("%s<p>%s</p>", messageToSend.replaceAll("\\n", "<br />"), FOOTER_TEXT));
+        final HtmlRenderer renderer = HtmlRenderer.builder().build();
 
         String lastName = notification.getFrom().getLastName();
         if (lastName != null) {
@@ -90,7 +89,7 @@ public class MailService extends NotificationMapper {
             firstName = format("%s%s", firstName.substring(0, 1).toUpperCase(), firstName.substring(1).toLowerCase());
         }
 
-        Message message = new Message(
+        final Message message = new Message(
                 notification.getSubject(),
                 renderer.render(document),
                 new Contact(format("%s %s VIA ZEEVEN", firstName, lastName), notification.getFrom().getEmail()),

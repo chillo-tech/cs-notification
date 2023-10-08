@@ -71,6 +71,7 @@ public class NotificationService {
             } catch (final Exception e) {
                 log.info("ERREUR LORS DE L'ENVOI d'un message");
                 log.error("ERREUR LORS DE L'ENVOI d'un message", e);
+                e.printStackTrace();
             }
         });
 
@@ -106,6 +107,7 @@ public class NotificationService {
             } catch (final Exception e) {
                 log.info("ERREUR LORS DE L'ENVOI d'un message");
                 log.error("ERREUR LORS DE L'ENVOI d'un message", e);
+                e.printStackTrace();
             }
         });
     }

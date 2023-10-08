@@ -5,8 +5,8 @@ spring:
       port: 27017
       authentication-database: admin
   mail:
-    host: smtp-relay.brevo.com
-    port: 587
+    host: localhost #smtp-relay.brevo.com
+    port: 25 #587
     username: accueil@chillo.tech
     password: pDXyM9QtTjYNJ8HV
   rabbitmq:
@@ -31,7 +31,7 @@ application:
 
 providers:
   brevo:
-    token: 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
+    token: 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
   whatsapp:
     token: EAAIPrVhqxp0BO6p9qqt6by1lMrKjx9UB9tZAHdBgodTmKRKEzN7p4V6CdBeqcYQoif1MZAZA9TuryHdqDL6fQC2WMZBxZA6scicQziZAcRn4OG93gRNcbZAteuIDNd79svF6LddoM5ip9DUc9W1bNHjLlZBZCul5JWdGnX41zeaMoF9ZCSkxZCG0m2BbiXEJxePAciAfaS4y6LEHQnOW9vAYPO16FtZBYQqHxXOGDwZDZD
     account-id: 120793114319926
