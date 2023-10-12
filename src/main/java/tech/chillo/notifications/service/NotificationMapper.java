@@ -45,10 +45,12 @@ public abstract class NotificationMapper {
                 params = new HashMap<>();
             }
 
-            final Map<String, List<Object>> othersParams = new HashMap<>();
-            to.getOthers().forEach(other -> othersParams.put(other.getLabel().replaceAll("\\s+", ""), List.of(other.getValue())));
-            for (final String otherParamKey : othersParams.keySet()) {
-                params.put(otherParamKey, othersParams.get(otherParamKey));
+            if (to.getOthers() != null && !to.getOthers().isEmpty()) {
+                final Map<String, List<Object>> othersParams = new HashMap<>();
+                to.getOthers().forEach(other -> othersParams.put(other.getLabel().replaceAll("\\s+", ""), List.of(other.getValue())));
+                for (final String otherParamKey : othersParams.keySet()) {
+                    params.put(otherParamKey, othersParams.get(otherParamKey));
+                }
             }
 
             final Object message = params.get("message");
