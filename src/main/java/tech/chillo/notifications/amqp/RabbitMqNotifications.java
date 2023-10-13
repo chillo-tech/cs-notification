@@ -19,7 +19,7 @@ public class RabbitMqNotifications {
             errorHandler = "rabbitErrorHandler"
     )
     public void handleMessage(final Notification notification) {
-        log.info("Traitement du message {} {}", notification.getEventId(), notification.getSubject());
+        log.info("Traitement du message {} {} sur les cannaux {}", notification.getEventId(), notification.getSubject(), notification.getChannels());
         this.notificationService.send(notification.getApplication(), notification, notification.getChannels().stream().toList());
     }
 
