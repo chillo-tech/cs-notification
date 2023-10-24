@@ -33,7 +33,8 @@ spring:
   rabbitmq:
     virtual-host: prod-notifications
     template:
-        default-receive-queue: "tech.notifications.queue"
+      exchange: tech.messages.exchange
+      default-receive-queue: tech.notifications.queue
 
   data:
     mongodb:

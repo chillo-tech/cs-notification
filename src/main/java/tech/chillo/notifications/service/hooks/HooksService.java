@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import tech.chillo.notifications.amqp.ASynchroniousNotifications;
 import tech.chillo.notifications.entity.NotificationStatus;
 import tech.chillo.notifications.records.whatsapp.WhatsappChangeValueStatus;
 import tech.chillo.notifications.records.whatsapp.WhatsappEntry;
@@ -24,11 +25,12 @@ import static tech.chillo.notifications.enums.NotificationType.WHATSAPP;
 @AllArgsConstructor
 public class HooksService {
     private NotificationStatusRepository notificationStatusRepository;
+    private ASynchroniousNotifications aSynchroniousNotifications;
 
 
-    public void vonage(Map<String, Object> params) {
+    public void vonage(final Map<String, Object> params) {
         log.info("vonage {}", params);
-        NotificationStatus notificationStatus = getNotificationStatus(params.get("MessageSid").toString());
+        final NotificationStatus notificationStatus = this.getNotificationStatus(params.get("MessageSid").toString());
         String status = params.get("status").toString();
         if (!Strings.isNullOrEmpty(status)) {
             status = status.toUpperCase();
@@ -43,17 +45,17 @@ public class HooksService {
         this.notificationStatusRepository.save(notificationStatus);
     }
 
-    public void whatsapp(WhatsappNotification notification) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public void whatsapp(final WhatsappNotification notification) {
+        final ObjectMapper objectMapper = new ObjectMapper();
         log.info("whatsapp {}", objectMapper.convertValue(notification, Map.class));
-        List<WhatsappEntry> entry = notification.entry();
+        final List<WhatsappEntry> entry = notification.entry();
         entry.forEach(item -> {
             item.changes().forEach(whatsappChange -> {
-                List<WhatsappChangeValueStatus> statuses = whatsappChange.value().statuses();
+                final List<WhatsappChangeValueStatus> statuses = whatsappChange.value().statuses();
                 if (statuses != null) {
                     statuses.forEach(status -> {
 
-                        NotificationStatus notificationStatus = getNotificationStatus(status.id());
+                        final NotificationStatus notificationStatus = this.getNotificationStatus(status.id());
                         String messageStatus = status.status();
                         if (!Strings.isNullOrEmpty(messageStatus)) {
                             messageStatus = messageStatus.toUpperCase();
@@ -64,7 +66,8 @@ public class HooksService {
 
                         notificationStatus.setId(null);
                         notificationStatus.setChannel(WHATSAPP);
-                        this.notificationStatusRepository.save(notificationStatus);
+                        final NotificationStatus saved = this.notificationStatusRepository.save(notificationStatus);
+                        this.aSynchroniousNotifications.sendMessageStatus(saved);
                     });
                 }
             });
@@ -72,9 +75,9 @@ public class HooksService {
     }
 
 
-    public void twilio(MultiValueMap<String, Object> params) {
+    public void twilio(final MultiValueMap<String, Object> params) {
         log.info("twilio params {} ", params);
-        NotificationStatus notificationStatus = getNotificationStatus("" + params.get("MessageSid").toArray()[0]);
+        final NotificationStatus notificationStatus = this.getNotificationStatus("" + params.get("MessageSid").toArray()[0]);
         String status = String.format("%s", params.get("MessageStatus").toArray()[0]);
         if (!Strings.isNullOrEmpty(status)) {
             status = status.toUpperCase();
@@ -85,14 +88,13 @@ public class HooksService {
         notificationStatus.setChannel(SMS);
 
         notificationStatus.setId(null);
-        this.notificationStatusRepository.save(notificationStatus);
+        final NotificationStatus saved = this.notificationStatusRepository.save(notificationStatus);
+        this.aSynchroniousNotifications.sendMessageStatus(saved);
     }
 
-    public void brevo(Map<String, Object> params) {
-        if (params.get("event").toString().equalsIgnoreCase("opened")) {
-            log.info("brevo params {} ", params);
-        }
-        NotificationStatus notificationStatus = getNotificationStatus("" + params.get("message-id"));
+    public void brevo(final Map<String, Object> params) {
+        log.info("brevo params {} ", params);
+        final NotificationStatus notificationStatus = this.getNotificationStatus("" + params.get("message-id"));
         String status = String.format("%s", params.get("event")).toUpperCase();
         if (!Strings.isNullOrEmpty(status)) {
             status = status.toUpperCase();
@@ -102,10 +104,11 @@ public class HooksService {
         notificationStatus.setChannel(MAIL);
 
         notificationStatus.setId(null);
-        this.notificationStatusRepository.save(notificationStatus);
+        final NotificationStatus saved = this.notificationStatusRepository.save(notificationStatus);
+        this.aSynchroniousNotifications.sendMessageStatus(saved);
     }
 
-    private NotificationStatus getNotificationStatus(String field) {
+    private NotificationStatus getNotificationStatus(final String field) {
         NotificationStatus notificationStatus = this.notificationStatusRepository.findFirstByProviderNotificationIdOrderByCreationDesc(field);
         if (notificationStatus == null) {
             notificationStatus = new NotificationStatus();
