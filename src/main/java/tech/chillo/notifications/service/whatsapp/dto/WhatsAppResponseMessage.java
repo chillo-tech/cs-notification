@@ -13,6 +13,7 @@ import java.util.List;
 @Setter
 public class WhatsAppResponseMessage {
     String messaging_product;
+    String message_status;
     String id;
     List<WhatsappContact> contacts;
     List<WhatsAppMessage> messages;
