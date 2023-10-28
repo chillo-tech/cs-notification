@@ -8,8 +8,9 @@ public class ApplicationData {
             "MR_MRS", "Mr & Mme",
             "MME", "Mme",
             "Mme", "Mme",
-            "MR", "M.",
             "Mr", "M.",
+            "MR", "M.",
+            "M", "M.",
             "MLLE", "Mlle"
     );
 
