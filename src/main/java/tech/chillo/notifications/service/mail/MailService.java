@@ -53,23 +53,25 @@ public class MailService extends NotificationMapper {
     @Async
     public List<NotificationStatus> send(final Notification notification) {
         return notification.getContacts().stream().map((Recipient to) -> {
-
+            final NotificationStatus notificationStatus = this.getNotificationStatus(
+                    notification,
+                    to.getId(),
+                    MAIL,
+                    "", //result.get("messageId").toString(), // TODO decommenter
+                    "INITIAL"
+            );
+            notificationStatus.setProvider("BREVO");
             try {
                 final String messageToSend = String.valueOf(this.map(notification, to).get("message"));
                 final Map<String, Object> result = this.sendMessageUsingSendinBlueAPI(notification, messageToSend, to);
-                final NotificationStatus notificationStatus = this.getNotificationStatus(
-                        notification,
-                        to.getId(),
-                        MAIL,
-                        "", //result.get("messageId").toString(), // TODO decommenter
-                        "INITIAL"
-                );
-                notificationStatus.setProvider("BREVO");
+                notificationStatus.setProviderNotificationId(result.get("messageId").toString());
                 return notificationStatus;
             } catch (final Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                log.error("ERROR {}", e.getMessage());
+                notificationStatus.setStatus("ERROR");
             }
-            return null;
+            return notificationStatus;
         }).collect(Collectors.toList());
     }
 

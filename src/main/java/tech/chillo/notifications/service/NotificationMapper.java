@@ -109,6 +109,7 @@ public abstract class NotificationMapper {
         notificationStatus.setEventId(notification.getEventId());
         notificationStatus.setLocalNotificationId(notification.getId());
         notificationStatus.setUserId(userId);
+        notificationStatus.setApplicationMessageId(notification.getApplicationMessageId());
         notificationStatus.setChannel(notificationType);
         notificationStatus.setProviderNotificationId(providerId);
         notificationStatus.setStatus(status);

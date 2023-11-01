@@ -26,6 +26,7 @@ public class Notification {
     private String message;
     private String subject;
     private String eventId;
+    private String applicationMessageId;
     private Application application;
     private Set<NotificationType> channels;
     private String template;

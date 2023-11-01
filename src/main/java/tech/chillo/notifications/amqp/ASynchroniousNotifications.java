@@ -14,14 +14,14 @@ import tech.chillo.notifications.entity.NotificationStatus;
 @Slf4j
 public class ASynchroniousNotifications {
     private final RabbitTemplate rabbitTemplate;
-    private final String applicationFilesExchange;
+    private final String applicationMessagesStatusExchange;
 
     public ASynchroniousNotifications(
             final RabbitTemplate rabbitTemplate,
-            @Value("${app.files.exchange}") final String applicationFilesExchange
+            @Value("${application.messages.status.exchange}") final String applicationMessagesStatusExchange
     ) {
         this.rabbitTemplate = rabbitTemplate;
-        this.applicationFilesExchange = applicationFilesExchange;
+        this.applicationMessagesStatusExchange = applicationMessagesStatusExchange;
     }
 
     public void sendMessageStatus(final NotificationStatus notificationStatus) {
@@ -29,7 +29,7 @@ public class ASynchroniousNotifications {
         messageProperties.getHeaders().put("object", "status");
         messageProperties.getHeaders().put("type", "message");
         final String jsonString = (new Gson()).toJson(notificationStatus);
-        // this.rabbitTemplate.setExchange(this.applicationFilesExchange);
+        this.rabbitTemplate.setExchange(this.applicationMessagesStatusExchange);
         this.rabbitTemplate.convertAndSend(new Message(jsonString.getBytes(), messageProperties));
     }
 }

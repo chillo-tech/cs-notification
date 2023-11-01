@@ -67,7 +67,7 @@ public class HooksService {
                         notificationStatus.setId(null);
                         notificationStatus.setChannel(WHATSAPP);
                         final NotificationStatus saved = this.notificationStatusRepository.save(notificationStatus);
-                        this.aSynchroniousNotifications.sendMessageStatus(saved);
+                        //this.aSynchroniousNotifications.sendMessageStatus(saved);
                     });
                 }
             });
@@ -89,7 +89,7 @@ public class HooksService {
 
         notificationStatus.setId(null);
         final NotificationStatus saved = this.notificationStatusRepository.save(notificationStatus);
-        this.aSynchroniousNotifications.sendMessageStatus(saved);
+        //this.aSynchroniousNotifications.sendMessageStatus(saved);
     }
 
     public void brevo(final Map<String, Object> params) {
@@ -105,7 +105,7 @@ public class HooksService {
 
         notificationStatus.setId(null);
         final NotificationStatus saved = this.notificationStatusRepository.save(notificationStatus);
-        this.aSynchroniousNotifications.sendMessageStatus(saved);
+        //this.aSynchroniousNotifications.sendMessageStatus(saved);
     }
 
     private NotificationStatus getNotificationStatus(final String field) {

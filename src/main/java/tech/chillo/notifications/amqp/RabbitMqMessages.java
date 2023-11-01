@@ -20,7 +20,7 @@ public class RabbitMqMessages {
     )
     public void handleMessage(final Notification notification) {
         log.info("Envoi du message {} {} sur les cannaux {}", notification.getEventId(), notification.getSubject(), notification.getChannels());
-        //this.notificationService.send(notification.getApplication(), notification, notification.getChannels().stream().toList());
+        this.notificationService.send(notification.getApplication(), notification, notification.getChannels().stream().toList());
     }
 
 }
