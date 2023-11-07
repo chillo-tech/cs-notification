@@ -35,7 +35,7 @@ public abstract class NotificationMapper {
         this.notificationTemplateRepository = notificationTemplateRepository;
     }
 
-    protected Map<String, Object> map(final Notification notification, final Recipient to) {
+    protected Map<String, Object> map(final Notification notification, final Recipient to, final NotificationType notificationType) {
         try {
 
             // Paramètres transmis pour le message
@@ -91,11 +91,11 @@ public abstract class NotificationMapper {
                         .findByApplicationAndName(notification.getApplication(), notification.getTemplate())
                         .orElseThrow(() -> new IllegalArgumentException(String.format("Aucun template %s n'existe pour %s", notification.getTemplate(), notification.getApplication())));
                 //final String template = this.textTemplateEngine.process(notificationTemplate.getContent(), context);
-                messageToSend = this.processTemplate(params, notificationTemplate.getContent());
+                messageToSend = this.processTemplate(params, notificationTemplate.getContent(), notificationType);
             } else {
                 messageToSend = messageToSend.replaceAll(Pattern.quote("{{"), Matcher.quoteReplacement("${"))
                         .replaceAll(Pattern.quote("}}"), Matcher.quoteReplacement("}"));
-                messageToSend = this.processTemplate(params, messageToSend);
+                messageToSend = this.processTemplate(params, messageToSend, notificationType);
             }
             return Map.of("message", messageToSend, "params", params);
         } catch (final IntrospectionException | IllegalAccessException | InvocationTargetException e) {
@@ -117,7 +117,7 @@ public abstract class NotificationMapper {
         return notificationStatus;
     }
 
-    protected String processTemplate(final Map<String, List<Object>> model, final String template) {
+    protected String processTemplate(final Map<String, List<Object>> model, final String template, final NotificationType notificationType) {
         final Map<String, Object> oneItemMap = new HashMap<>();
         final Map<String, List<Object>> moreThanOneItemMap = new HashMap<>();
         model.keySet()
@@ -137,7 +137,11 @@ public abstract class NotificationMapper {
         moreThanOneItemMap.keySet().forEach(key -> {
             final List<Object> values = moreThanOneItemMap.get(key);
             for (final Object replacement : values) {
-                parsedTemplate[0] = parsedTemplate[0].replaceFirst(String.format("%s%s%s", "\\$\\{", key, "}"), (String) replacement);
+                String templateValue = (String) replacement;
+                if (notificationType.equals(NotificationType.EMAIL) && key.equals("link")) {
+                    templateValue = String.format("<a href='%s'>%s</a>", templateValue, templateValue);
+                }
+                parsedTemplate[0] = parsedTemplate[0].replaceFirst(String.format("%s%s%s", "\\$\\{", key, "}"), templateValue);
             }
         });
         return parsedTemplate[0];

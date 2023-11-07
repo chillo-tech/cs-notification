@@ -51,7 +51,7 @@ public class TwilioSMSService extends NotificationMapper {
     @Async
     public List<NotificationStatus> send(final Notification notification) {
         return notification.getContacts().parallelStream().map((Recipient to) -> {
-            String messageToSend = String.valueOf(this.map(notification, to).get("message"));
+            String messageToSend = String.valueOf(this.map(notification, to, SMS).get("message"));
 
             String phoneNumber = this.recipient;
             if (phoneNumber == null) {
@@ -67,7 +67,7 @@ public class TwilioSMSService extends NotificationMapper {
                     .setFrom(this.twilioAlphaId)
                     .setStatusCallback(URI.create(this.callbackPath))
                     .create();
-            NotificationStatus notificationStatus = this.getNotificationStatus(
+            final NotificationStatus notificationStatus = this.getNotificationStatus(
                     notification,
                     to.getId(),
                     SMS,

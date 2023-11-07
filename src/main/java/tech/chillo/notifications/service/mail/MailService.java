@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static tech.chillo.notifications.data.ApplicationData.FOOTER_TEXT;
+import static tech.chillo.notifications.enums.NotificationType.EMAIL;
 import static tech.chillo.notifications.enums.NotificationType.MAIL;
 
 @Slf4j
@@ -62,7 +63,7 @@ public class MailService extends NotificationMapper {
             );
             notificationStatus.setProvider("BREVO");
             try {
-                final String messageToSend = String.valueOf(this.map(notification, to).get("message"));
+                final String messageToSend = String.valueOf(this.map(notification, to, EMAIL).get("message"));
                 final Map<String, Object> result = this.sendMessageUsingSendinBlueAPI(notification, messageToSend, to);
                 notificationStatus.setProviderNotificationId(result.get("messageId").toString());
                 return notificationStatus;

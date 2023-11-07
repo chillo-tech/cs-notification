@@ -3,7 +3,7 @@ application:
     status:
         exchange: messages.status
     send:
-        queue: messages.send
+        queue: "messages.send"
     queue: "tech.messages.queue"
   notifications:
     queue: "tech.notifications.queue"
