@@ -5,8 +5,6 @@ import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import tech.chillo.notifications.entity.Notification;
@@ -17,14 +15,8 @@ import tech.chillo.notifications.records.brevo.Message;
 import tech.chillo.notifications.repository.NotificationTemplateRepository;
 import tech.chillo.notifications.service.NotificationMapper;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,18 +28,15 @@ import static tech.chillo.notifications.enums.NotificationType.MAIL;
 @Slf4j
 @Service
 public class MailService extends NotificationMapper {
-    private final JavaMailSender mailSender;
     private final String recipient;
     private final SendinblueMessageService brevoMessageService;
 
     public MailService(
             final NotificationTemplateRepository notificationTemplateRepository,
-            final JavaMailSender mailSender,
             final SendinblueMessageService brevoMessageService,
             @Value("${application.recipient.email:#{null}}") final String recipient) {
         super(notificationTemplateRepository);
         this.brevoMessageService = brevoMessageService;
-        this.mailSender = mailSender;
         this.recipient = recipient;
     }
 
@@ -77,7 +66,7 @@ public class MailService extends NotificationMapper {
     }
 
 
-    private Map<String, Object> sendMessageUsingSendinBlueAPI(final Notification notification, final String messageToSend, final Recipient to) throws MessagingException {
+    private Map<String, Object> sendMessageUsingSendinBlueAPI(final Notification notification, final String messageToSend, final Recipient to) {
         final Parser parser = Parser.builder().build();
         final Node document = parser.parse(String.format("%s<p>%s</p>", messageToSend.replaceAll("\\n", "<br />"), FOOTER_TEXT));
         final HtmlRenderer renderer = HtmlRenderer.builder().build();
@@ -101,22 +90,6 @@ public class MailService extends NotificationMapper {
         return this.brevoMessageService.message(message);
     }
 
-    private void sendMessage(final Notification notification, final String template) throws MessagingException {
-        final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
-        final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
-        final InternetAddress[] mappedRecipients = this.mappedUsers(notification.getContacts());
-        helper.setTo(mappedRecipients);
-        final InternetAddress[] mappedCC = this.mappedUsers(notification.getCc());
-        helper.setCc(mappedCC);
-        final InternetAddress[] mappedCCI = this.mappedUsers(notification.getCci());
-        helper.setCc(mappedCCI);
-        final InternetAddress from = this.getInternetAddress(notification.getFrom().getFirstName(), notification.getFrom().getLastName(), notification.getFrom().getEmail());
-        helper.setFrom(Objects.requireNonNull(from));
-        helper.setSubject(notification.getSubject());
-        helper.setText(template, true);
-        this.mailSender.send(mimeMessage);
-    }
-
     private Set<Contact> mappedContacts(final Set<Recipient> recipients) {
 
         return recipients.stream().map(
@@ -129,29 +102,5 @@ public class MailService extends NotificationMapper {
                         })
                 .collect(Collectors.toSet());
     }
-
-    private InternetAddress[] mappedUsers(final Set<Recipient> recipients) {
-
-        return recipients.stream().map(
-                        (Recipient to) -> {
-                            String email = this.recipient;
-                            if (this.recipient == null) {
-                                email = to.getEmail();
-                            }
-                            return this.getInternetAddress(to.getFirstName(), to.getLastName(), email);
-                        })
-                .toArray(InternetAddress[]::new);
-    }
-
-    private InternetAddress getInternetAddress(final String firstname, final String lastname, final String email) {
-        try {
-            final String name = format("%s %s", firstname, lastname);
-            return new InternetAddress(email, name);
-        } catch (final UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 
 }

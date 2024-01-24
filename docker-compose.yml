@@ -27,6 +27,6 @@ services:
 
 networks:
   applications-network:
-    external:
-      name: applications-network
+    external: true
+    name: applications-network
 

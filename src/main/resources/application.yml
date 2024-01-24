@@ -10,23 +10,6 @@ application:
   invitations:
     queue: "tech.invitations.queue"
 
-providers:
-  callback:
-    host: https://api.notifications.chillo.fr
-    path: ${providers.callback.host}/api/hooks
-  brevo:
-    host: https://api.brevo.com
-    path: v3/smtp/email
-  whatsapp:
-    host: https://graph.facebook.com/v17.0/${providers.whatsapp.phone}
-    template-host: https://graph.facebook.com/v16.0/${providers.whatsapp.waba-id}
-    callback-path: ${providers.callback.path}/whatsapp
-  twilio:
-    alpha-id: ZEEVEN
-    host: https://api.twilio.com/2010-04-01/Accounts
-    callback-path: ${providers.callback.path}/twilio
-  vonage:
-    callback-path: ${providers.callback.path}/vonage
 server:
   port : 9092
   servlet:
@@ -45,25 +28,21 @@ spring:
       host: localhost
       port: 27017
       database: ${spring.application.name}
-  mail:
-    default-encoding: UTF-8
-    properties:
-      mail:
-        smtp:
-          auth: false
-          ssl:
-            trust: "*"
-          starttls:
-            enable: true
-    protocol: smtp
-    test-connection: true
 
-logging:
-  level:
-    org.springframework.security: DEBUG
-    tech.chillo.notifications: DEBUG
-org:
-  springframework:
-    web:
-      filter:
-        CommonsRequestLoggingFilter: DEBUG
+providers:
+  callback:
+    host: https://api.notifications.chillo.fr
+    path: ${providers.callback.host}/api/hooks
+  brevo:
+    host: https://api.brevo.com
+    path: v3/smtp/email
+  whatsapp:
+    host: https://graph.facebook.com/v17.0/${providers.whatsapp.phone}
+    template-host: https://graph.facebook.com/v16.0/${providers.whatsapp.waba-id}
+    callback-path: ${providers.callback.path}/whatsapp
+  twilio:
+    alpha-id: ZEEVEN
+    host: https://api.twilio.com/2010-04-01/Accounts
+    callback-path: ${providers.callback.path}/twilio
+  vonage:
+    callback-path: ${providers.callback.path}/vonage

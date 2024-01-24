@@ -1,9 +1,15 @@
 spring:
   data:
     mongodb:
-      host: db-mongo
+      host: db-zeeven
       authentication-database: admin
-  mail:
-    host: mails.dev
 
-
+logging:
+  level:
+    org.springframework.security: ERROR
+    tech.chillo.notifications: ERROR
+org:
+  springframework:
+    web:
+      filter:
+        CommonsRequestLoggingFilter: ERROR
