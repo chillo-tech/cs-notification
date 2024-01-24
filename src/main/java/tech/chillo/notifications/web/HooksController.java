@@ -26,31 +26,30 @@ public class HooksController {
     private HooksService hooksService;
 
     @PostMapping(path = "vonage", consumes = APPLICATION_JSON_VALUE)
-    public void vonage(@RequestBody Map<String, Object> params) {
+    public void vonage(@RequestBody final Map<String, Object> params) {
         this.hooksService.vonage(params);
     }
 
     @PostMapping(path = "twilio", consumes = APPLICATION_FORM_URLENCODED_VALUE)
-    public void twilio(@RequestBody MultiValueMap<String, Object> params) {
+    public void twilio(@RequestBody final MultiValueMap<String, Object> params) {
         this.hooksService.twilio(params);
     }
 
     @PostMapping(path = "whatsapp", consumes = APPLICATION_JSON_VALUE)
-    public void whatsapp(@RequestBody WhatsappNotification notification) {
+    public void whatsapp(@RequestBody final WhatsappNotification notification) {
         this.hooksService.whatsapp(notification);
     }
 
     @PostMapping(path = "brevo", consumes = APPLICATION_JSON_VALUE)
-    public void sendingblue(@RequestBody Map<String, Object> params) {
+    public void sendingblue(@RequestBody final Map<String, Object> params) {
         this.hooksService.brevo(params);
     }
 
     @GetMapping(path = "whatsapp")
     public String whatsapp(
-            @RequestParam(required = false, name = "hub.verify_token") String token,
-            @RequestParam(required = false, name = "hub.challenge") String challenge,
-            @RequestParam(required = false, name = "hub.mode") String mode) {
-        log.info("WA TOKEN {}", challenge);
+            @RequestParam(required = false, name = "hub.verify_token") final String token,
+            @RequestParam(required = false, name = "hub.challenge") final String challenge,
+            @RequestParam(required = false, name = "hub.mode") final String mode) {
         return challenge;
     }
 }

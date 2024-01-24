@@ -3,7 +3,7 @@ services:
   ms-app:
     container_name: ms-notifications
     restart: always
-    image: IMAGE_NAME
+    image: ms-notifications:latest
     ports:
       - "27192:9092"
     networks:
