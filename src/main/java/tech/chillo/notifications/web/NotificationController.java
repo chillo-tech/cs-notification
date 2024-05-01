@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tech.chillo.notifications.entity.Notification;
 import tech.chillo.notifications.entity.NotificationStatus;
-import tech.chillo.notifications.enums.Application;
 import tech.chillo.notifications.enums.NotificationType;
 import tech.chillo.notifications.service.NotificationService;
 
@@ -26,7 +25,7 @@ public class NotificationController {
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, path = "notification")
     public void send(
-            @RequestHeader(name = "X-application-name", required = false) final Application applicationName,
+            @RequestHeader(name = "X-application-name", required = false) final String applicationName,
             @RequestParam final List<NotificationType> types,
             @RequestBody final Notification notification) {
 

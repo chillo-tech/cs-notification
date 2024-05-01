@@ -24,19 +24,19 @@ public class TemplateService {
     private final SharedService sharedService;
     private final TemplateRepository templateRepository;
 
-    public void create(Template template) {
+    public void create(final Template template) {
         String name = template.getName();
         name = String.format("%s", name);
-        String slug = this.sharedService.toSlug(name.toLowerCase());
+        final String slug = this.sharedService.toSlug(name.toLowerCase());
         template.setSlug(slug);
         template.setName(name);
 
         Template templateInBDD = this.templateRepository.findBySlug(slug);
 
         if (templateInBDD == null) {
-            TemplateComponent body = template.getComponents().stream().filter(templateComponent -> templateComponent.getType().equals(BODY)).findFirst().orElse(null);
+            final TemplateComponent body = template.getComponents().stream().filter(templateComponent -> templateComponent.getType().equals(BODY)).findFirst().orElse(null);
             if (body != null && !Strings.isNullOrEmpty(body.getText())) {
-                Map<Integer, String> mappings = getMatchers(body.getText());
+                final Map<Integer, String> mappings = this.getMatchers(body.getText());
                 template.setWhatsAppMapping(mappings);
             }
 
@@ -48,13 +48,13 @@ public class TemplateService {
         }
     }
 
-    private Map<Integer, String> getMatchers(String text) {
-        Map<Integer, String> mappers = new HashMap<>();
-        Pattern VARIABLE_PATTERN = Pattern.compile("\\{\\{(.*?)\\}\\}");
-        Matcher matcher = VARIABLE_PATTERN.matcher(text);
+    private Map<Integer, String> getMatchers(final String text) {
+        final Map<Integer, String> mappers = new HashMap<>();
+        final Pattern VARIABLE_PATTERN = Pattern.compile("\\{\\{(.*?)\\}\\}");
+        final Matcher matcher = VARIABLE_PATTERN.matcher(text);
         int i = 1;
         while (matcher.find()) {
-            String item = matcher.group();
+            final String item = matcher.group();
             mappers.put(
                     i,
                     item.replaceAll("\\{", "").replaceAll("\\}", "")

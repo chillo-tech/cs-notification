@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tech.chillo.notifications.entity.Notification;
 import tech.chillo.notifications.entity.NotificationStatus;
-import tech.chillo.notifications.enums.Application;
 import tech.chillo.notifications.enums.NotificationType;
 import tech.chillo.notifications.repository.NotificationRepository;
 import tech.chillo.notifications.repository.NotificationStatusRepository;
@@ -38,7 +37,7 @@ public class NotificationService {
         this.notificationStatusRepository = notificationStatusRepository;
     }
 
-    public void send(final Application application, final Notification notification, final List<NotificationType> types) {
+    public void send(final String application, final Notification notification, final List<NotificationType> types) {
         types.forEach(type -> {
             try {
 
@@ -98,7 +97,7 @@ public class NotificationService {
                 }
                 notification.setType(type);
                 notification.setCreation(Instant.now());
-                notification.setApplication(Application.valueOf(application));
+                notification.setApplication(application);
                 final Notification saved = this.notificationRepository.save(notification);
                 notificationStatusList.parallelStream().forEach(notificationStatus -> notificationStatus.setLocalNotificationId(saved.getId()));
 

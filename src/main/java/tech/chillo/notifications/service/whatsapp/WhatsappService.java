@@ -87,7 +87,7 @@ public class WhatsappService extends NotificationMapper {
 
     @Async
     public List<NotificationStatus> sendText(final Notification notification) {
-        return notification.getContacts().parallelStream().map((Recipient to) -> {
+        return notification.getContacts().parallelStream().map((final Recipient to) -> {
             final String messageToSend = String.valueOf(this.map(notification, to, WHATSAPP).get("message"));
             String phoneNumber = this.recipient;
             if (phoneNumber == null) {
@@ -132,7 +132,7 @@ public class WhatsappService extends NotificationMapper {
     public List<NotificationStatus> activeAccountComponents(final Notification notification) {
         final String templateName = "ze_say_hello";
         final Template templateInBDD = this.templateRepository.findByName(templateName);
-        return notification.getContacts().stream().map((Recipient to) -> {
+        return notification.getContacts().stream().map((final Recipient to) -> {
 
             final Component component = new Component();
             component.setType("body");
@@ -174,7 +174,7 @@ public class WhatsappService extends NotificationMapper {
     public List<NotificationStatus> disabledAccountComponents(final Notification notification) {
 
         final String templateName = "ze_test_template";
-        return notification.getContacts().stream().map((Recipient to) -> {
+        return notification.getContacts().stream().map((final Recipient to) -> {
             final Component component = new Component();
             component.setType("body");
             final List<Parameter> parameters = List.of(
@@ -282,7 +282,7 @@ public class WhatsappService extends NotificationMapper {
         );
         final NotificationTemplate templateFromDatabase = this.notificationTemplateRepository
                 .findByApplicationAndName(
-                        Application.valueOf(application),
+                        application,
                         notificationTemplate
                 )
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Aucun template %s n'existe pour %s", Application.valueOf(application), notificationTemplate)));
@@ -448,7 +448,7 @@ public class WhatsappService extends NotificationMapper {
         }
     }
 
-    protected String processTemplate(final Application application, final String template, final Map<String, List<Object>> params) {
+    protected String processTemplate(final String application, final String template, final Map<String, List<Object>> params) {
         final String messageToSend;
         final NotificationTemplate notificationTemplate = this.notificationTemplateRepository
                 .findByApplicationAndName(application, template)

@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import tech.chillo.notifications.enums.Application;
 import tech.chillo.notifications.enums.NotificationType;
 
 import java.time.Instant;
@@ -27,7 +26,7 @@ public class Notification {
     private String subject;
     private String eventId;
     private String applicationMessageId;
-    private Application application;
+    private String application;
     private Set<NotificationType> channels;
     private String template;
     private Sender from;
