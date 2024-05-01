@@ -49,6 +49,7 @@ public class NotificationTemplateService {
         templateInBDD.setContent(notificationTemplate.getContent());
         templateInBDD.setApplication(notificationTemplate.getApplication());
         templateInBDD.setName(notificationTemplate.getName());
+        this.notificationTemplateRepository.deleteById(id);
         return this.notificationTemplateRepository.save(templateInBDD);
     }
 
