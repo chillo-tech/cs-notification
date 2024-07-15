@@ -20,7 +20,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 @AllArgsConstructor
 @RestController
-@RequestMapping(path = "hooks", produces = APPLICATION_JSON_VALUE)
+@RequestMapping(path = {"hooks", "api/hooks"}, produces = APPLICATION_JSON_VALUE)
 public class HooksController {
 
     private HooksService hooksService;
